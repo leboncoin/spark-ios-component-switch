@@ -12,7 +12,7 @@ import Combine
 @_spi(SI_SPI) @testable import SparkSwitchTesting
 @_spi(SI_SPI) import SparkCommon
 @_spi(SI_SPI) import SparkCommonTesting
-import SparkThemingTesting
+@_spi(SI_SPI) import SparkThemingTesting
 import SparkTheming
 
 final class SwitchViewModelTests: XCTestCase {

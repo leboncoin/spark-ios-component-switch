@@ -8,7 +8,7 @@
 
 @testable import SparkSwitch
 import SparkTheming
-import SparkThemingTesting
+@_spi(SI_SPI) import SparkThemingTesting
 
 extension SwitchStatusColors {
 

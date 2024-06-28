@@ -9,7 +9,7 @@
 import XCTest
 import SwiftUI
 @testable import SparkSwitch
-import SparkThemingTesting
+@_spi(SI_SPI) import SparkThemingTesting
 
 final class SwitchGetPositionUseCaseTests: XCTestCase {
 

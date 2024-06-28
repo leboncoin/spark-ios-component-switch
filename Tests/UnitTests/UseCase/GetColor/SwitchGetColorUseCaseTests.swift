@@ -10,7 +10,7 @@ import XCTest
 import SwiftUI
 @testable import SparkSwitch
 @_spi(SI_SPI) @testable import SparkSwitchTesting
-import SparkThemingTesting
+@_spi(SI_SPI) import SparkThemingTesting
 import SparkTheming
 
 final class SwitchGetColorUseCaseTests: XCTestCase {
