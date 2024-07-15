@@ -227,11 +227,11 @@ public final class SwitchUIView: UIView {
     private var toggleDotTrailingConstraint: NSLayoutConstraint?
     private var toggleDotBottomConstraint: NSLayoutConstraint?
 
-    @ScaledUIMetric private var contentStackViewSpacing: CGFloat = .zero
-    @ScaledUIMetric private var toggleHeight: CGFloat = Constants.ToggleSizes.height
-    @ScaledUIMetric private var toggleWidth: CGFloat = Constants.ToggleSizes.width
-    @ScaledUIMetric private var toggleSpacing: CGFloat = Constants.ToggleSizes.padding
-    @ScaledUIMetric private var toggleDotSpacing: CGFloat = Constants.toggleDotImagePadding
+    private var contentStackViewSpacing: CGFloat = .zero
+    private var toggleHeight: CGFloat = Constants.ToggleSizes.height
+    private var toggleWidth: CGFloat = Constants.ToggleSizes.width
+    private var toggleSpacing: CGFloat = Constants.ToggleSizes.padding
+    private var toggleDotSpacing: CGFloat = Constants.toggleDotImagePadding
 
     private var isEnabledAnimated: Bool = false
     private var isOnAnimated: Bool = false
@@ -804,7 +804,6 @@ public final class SwitchUIView: UIView {
             guard let self, let horizontalSpacing else { return }
 
             self.contentStackViewSpacing = horizontalSpacing
-            self._contentStackViewSpacing.update(traitCollection: self.traitCollection)
             self.updateContentStackViewSpacing()
         }
 
@@ -868,25 +867,6 @@ public final class SwitchUIView: UIView {
 
             self.textLabel.font = fontToken.uiFont
         }
-    }
-
-    // MARK: - Trait Collection
-
-    public override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        self.invalidateIntrinsicContentSize()
-
-        // Update size content
-        self._contentStackViewSpacing.update(traitCollection: self.traitCollection)
-        self.updateContentStackViewSpacing()
-
-        self._toggleSpacing.update(traitCollection: self.traitCollection)
-        self.updateToggleContentViewSpacings()
-        self.updateToggleDotImageViewSpacings()
-
-        self._toggleWidth.update(traitCollection: self.traitCollection)
-        self._toggleHeight.update(traitCollection: self.traitCollection)
-        self.updateToggleViewSize()
     }
 
     // MARK: - Label priorities

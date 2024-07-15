@@ -23,11 +23,11 @@ public struct SwitchView: View {
 
     @Binding private var isOn: Bool
 
-    @ScaledMetric private var contentStackViewSpacingMultiplier: CGFloat = .scaledMetricMultiplier
-    @ScaledMetric private var toggleHeight: CGFloat = Constants.ToggleSizes.height
-    @ScaledMetric private var toggleWidth: CGFloat = Constants.ToggleSizes.width
-    @ScaledMetric private var togglePadding: CGFloat = Constants.ToggleSizes.padding
-    @ScaledMetric private var toggleDotPadding: CGFloat = Constants.toggleDotImagePadding
+    private var contentStackViewSpacingMultiplier: CGFloat = .scaledMetricMultiplier
+    private var toggleHeight: CGFloat = Constants.ToggleSizes.height
+    private var toggleWidth: CGFloat = Constants.ToggleSizes.width
+    private var togglePadding: CGFloat = Constants.ToggleSizes.padding
+    private var toggleDotPadding: CGFloat = Constants.toggleDotImagePadding
 
     // MARK: - Initialization
 
