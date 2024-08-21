@@ -37,7 +37,7 @@ public final class SwitchUIView: UIView {
         let stackView = UIStackView(
             arrangedSubviews:
                 [
-                    self.toggleView,
+                    self.toggleContentView,
                     self.textLabel
                 ]
         )
@@ -46,6 +46,25 @@ public final class SwitchUIView: UIView {
         stackView.isBaselineRelativeArrangement = true
 
         return stackView
+    }()
+
+    // This view (and the label subview) is needed to align
+    // the toggle to the first line of the textLabel. (required when accessibility
+    // dynamic type is enabled)
+    private lazy var toggleContentView: UIView = {
+        let view = UIView()
+        view.addSubview(self.toggleHidenLabel)
+        view.addSubview(self.toggleView)
+        view.backgroundColor = .clear
+        return view
+    }()
+
+    private lazy var toggleHidenLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 1
+        label.adjustsFontForContentSizeCategory = self.textLabel.adjustsFontForContentSizeCategory
+        label.isHidden = true
+        return label
     }()
 
     private lazy var toggleView: UIView = {
@@ -195,6 +214,7 @@ public final class SwitchUIView: UIView {
         }
         set {
             self.textLabel.text = newValue
+            self.toggleHidenLabel.text = newValue
             self.viewModel.set(text: newValue)
         }
     }
@@ -206,6 +226,7 @@ public final class SwitchUIView: UIView {
         }
         set {
             self.textLabel.attributedText = newValue
+            self.toggleHidenLabel.attributedText = newValue
             self.viewModel.set(attributedText: newValue.map { .left($0) })
         }
     }
@@ -483,8 +504,10 @@ public final class SwitchUIView: UIView {
         // Only one of the text/attributedText can be set in the init
         if let text {
             self.textLabel.text = text
+            self.toggleHidenLabel.text = text
         } else if let attributedText {
             self.textLabel.attributedText = attributedText
+            self.toggleHidenLabel.attributedText = attributedText
         }
     }
 
@@ -566,6 +589,8 @@ public final class SwitchUIView: UIView {
         self.setupContentStackViewConstraints()
 
         // Toggle View and subviews
+        self.setupToggleContentViewConstraints()
+        self.setupToggleHidenLabelConstraints()
         self.setupToggleViewConstraints()
         self.setupToggleContentStackViewConstraints()
         self.setupToggleDotViewConstraints()
@@ -589,11 +614,34 @@ public final class SwitchUIView: UIView {
         )
     }
 
+    private func setupToggleContentViewConstraints() {
+        self.toggleContentView.translatesAutoresizingMaskIntoConstraints = false
+
+        self.toggleContentView.heightAnchor.constraint(greaterThanOrEqualTo: self.toggleView.heightAnchor)
+    }
+
+    private func setupToggleHidenLabelConstraints() {
+        self.toggleHidenLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        self.toggleHidenLabel.heightAnchor.constraint(greaterThanOrEqualTo: self.toggleView.heightAnchor).isActive = true
+        NSLayoutConstraint.stickEdges(
+            from: self.toggleHidenLabel,
+            to: self.toggleContentView
+        )
+    }
+
     private func setupToggleViewConstraints() {
         self.toggleView.translatesAutoresizingMaskIntoConstraints = false
 
         self.toggleWidthConstraint = self.toggleView.widthAnchor.constraint(equalToConstant: .zero)
         self.toggleHeightConstraint = self.toggleView.heightAnchor.constraint(equalToConstant: .zero)
+
+        self.toggleView.trailingAnchor.constraint(equalTo: self.toggleContentView.trailingAnchor).isActive = true
+        self.toggleView.leadingAnchor.constraint(equalTo: self.toggleContentView.leadingAnchor).isActive = true
+        NSLayoutConstraint.center(
+            from: self.toggleView,
+            to: self.toggleContentView
+        )
     }
 
     private func setupToggleContentStackViewConstraints() {
@@ -866,6 +914,7 @@ public final class SwitchUIView: UIView {
             guard let self, let fontToken else { return }
 
             self.textLabel.font = fontToken.uiFont
+            self.toggleHidenLabel.font = fontToken.uiFont
         }
     }
 
