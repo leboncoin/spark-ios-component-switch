@@ -70,10 +70,12 @@ private extension SwitchViewSnapshotTests {
                     .attributedText(attributedText.rightValue)
             }
 
-            self.assertSnapshotInDarkAndLight(
+            self.assertSnapshot(
                 matching: view
                     .background(self.theme.colors.base.background.color)
                     .fixedSize(),
+                modes: [.dark, .light],
+                sizes: Constants.sizes,
                 testName: sut.testName(on: function)
             )
         }

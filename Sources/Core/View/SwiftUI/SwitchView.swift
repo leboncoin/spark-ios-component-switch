@@ -23,11 +23,11 @@ public struct SwitchView: View {
 
     @Binding private var isOn: Bool
 
-    @ScaledMetric private var contentStackViewSpacingMultiplier: CGFloat = .scaledMetricMultiplier
-    @ScaledMetric private var toggleHeight: CGFloat = Constants.ToggleSizes.height
-    @ScaledMetric private var toggleWidth: CGFloat = Constants.ToggleSizes.width
-    @ScaledMetric private var togglePadding: CGFloat = Constants.ToggleSizes.padding
-    @ScaledMetric private var toggleDotPadding: CGFloat = Constants.toggleDotImagePadding
+    private var contentStackViewSpacingMultiplier: CGFloat = .scaledMetricMultiplier
+    private var toggleHeight: CGFloat = Constants.ToggleSizes.height
+    private var toggleWidth: CGFloat = Constants.ToggleSizes.width
+    private var togglePadding: CGFloat = Constants.ToggleSizes.padding
+    private var toggleDotPadding: CGFloat = Constants.toggleDotImagePadding
 
     // MARK: - Initialization
 
@@ -91,6 +91,7 @@ public struct SwitchView: View {
             self.space()
         case .text:
             self.text()
+                .layoutPriority(1)
         case .toggle:
             self.toggle()
         }
@@ -99,15 +100,17 @@ public struct SwitchView: View {
     // MARK: - Subview Builder
 
     @ViewBuilder
-    private func text() -> some View {
+    private func text(isUsedForAlignment: Bool = false) -> some View {
         if let text = self.viewModel.displayedText?.text {
             Text(text)
                 .font(self.viewModel.textFontToken?.font)
                 .foregroundColor(self.viewModel.textForegroundColorToken?.color ?? .clear)
-                .applyStyle()
+                .lineLimit(isUsedForAlignment: isUsedForAlignment)
+                .applyStyle(isUsedForAlignment: isUsedForAlignment)
         } else if let attributedText = self.viewModel.displayedText?.attributedText?.rightValue {
             Text(attributedText)
-                .applyStyle()
+                .lineLimit(isUsedForAlignment: isUsedForAlignment)
+                .applyStyle(isUsedForAlignment: isUsedForAlignment)
         }
     }
 
@@ -124,77 +127,84 @@ public struct SwitchView: View {
     @ViewBuilder
     private func toggle() -> some View {
         ZStack {
-            RoundedRectangle(
-                cornerRadius: self.viewModel.theme.border.radius.full
-            )
-            .fill(self.viewModel.toggleBackgroundColorToken?.color ?? .clear)
-            .opacity(self.viewModel.toggleOpacity ?? .zero)
+            self.text(isUsedForAlignment: true)
+                .frame(width: self.toggleWidth)
+                .accessibilityHidden(true)
+                .hidden()
 
-            HStack {
-                // Left Space
-                if let showSpace = self.viewModel.showToggleLeftSpace,
-                   showSpace {
-                    Spacer()
-                }
-                ZStack {
-                    // Dot
-                    Circle()
-                        .fill(self.viewModel.toggleDotBackgroundColorToken?.color ?? .clear)
-                        .aspectRatio(1, contentMode: .fit)
-                        .accessibilityIdentifier(AccessibilityIdentifier.toggleDotView)
+            ZStack {
+                RoundedRectangle(
+                    cornerRadius: self.viewModel.theme.border.radius.full
+                )
+                .fill(self.viewModel.toggleBackgroundColorToken?.color ?? .clear)
+                .opacity(self.viewModel.toggleOpacity ?? .zero)
 
-                    ZStack {
-                        // On icon
-                        self.viewModel.toggleDotImagesState?.images.rightValue.on
-                            .applyStyle(
-                                isForOnImage: true,
-                                viewModel: self.viewModel
-                            )
-
-                        // Off icon
-                        self.viewModel.toggleDotImagesState?.images.rightValue.off
-                            .applyStyle(
-                                isForOnImage: false,
-                                viewModel: self.viewModel
-                            )
+                HStack {
+                    // Left Space
+                    if let showSpace = self.viewModel.showToggleLeftSpace,
+                       showSpace {
+                        Spacer()
                     }
-                    .opacity(self.viewModel.toggleOpacity ?? .zero)
-                    .padding(.init(
-                        all: self.toggleDotPadding
-                    ))
-                    .animation(
-                        .custom,
-                        value: self.viewModel.toggleDotImagesState
-                    )
-                }
+                    ZStack {
+                        // Dot
+                        Circle()
+                            .fill(self.viewModel.toggleDotBackgroundColorToken?.color ?? .clear)
+                            .aspectRatio(1, contentMode: .fit)
+                            .accessibilityIdentifier(AccessibilityIdentifier.toggleDotView)
 
-                // Right Space
-                if let showSpace = self.viewModel.showToggleLeftSpace,
-                   !showSpace {
-                    Spacer()
+                        ZStack {
+                            // On icon
+                            self.viewModel.toggleDotImagesState?.images.rightValue.on
+                                .applyStyle(
+                                    isForOnImage: true,
+                                    viewModel: self.viewModel
+                                )
+
+                            // Off icon
+                            self.viewModel.toggleDotImagesState?.images.rightValue.off
+                                .applyStyle(
+                                    isForOnImage: false,
+                                    viewModel: self.viewModel
+                                )
+                        }
+                        .opacity(self.viewModel.toggleOpacity ?? .zero)
+                        .padding(.init(
+                            all: self.toggleDotPadding
+                        ))
+                        .animation(
+                            .custom,
+                            value: self.viewModel.toggleDotImagesState
+                        )
+                    }
+
+                    // Right Space
+                    if let showSpace = self.viewModel.showToggleLeftSpace,
+                       !showSpace {
+                        Spacer()
+                    }
                 }
+                .padding(.init(
+                    all: self.togglePadding
+                ))
+                .animation(
+                    .custom,
+                    value: self.viewModel.showToggleLeftSpace
+                )
             }
-            .padding(.init(
-                all: self.togglePadding
-            ))
-            .animation(
-                .custom,
-                value: self.viewModel.showToggleLeftSpace
+            .frame(
+                width: self.toggleWidth,
+                height: self.toggleHeight
             )
-        }
-        .frame(
-            width: self.toggleWidth,
-            height: self.toggleHeight
-        )
-        .accessibilityAddTraits(self.getAccessibilityTraits())
-        .accessibilityIdentifier(AccessibilityIdentifier.toggleView)
-        .accessibilityValue(isOn ? "1" : "0")
-        .accessibilityRepresentation {
-            Toggle(isOn: $isOn) { }
-        }
-        .onTapGesture {
-            withAnimation(.custom) {
-                self.viewModel.toggle()
+            .accessibilityAddTraits(self.getAccessibilityTraits())
+            .accessibilityIdentifier(AccessibilityIdentifier.toggleView)
+            .accessibilityValue(isOn ? "1" : "0")
+            .accessibilityRepresentation {
+                Toggle(isOn: $isOn) { }
+            }
+            .onTapGesture {
+                withAnimation(.custom) {
+                    self.viewModel.toggle()
+                }
             }
         }
     }
@@ -249,10 +259,17 @@ public struct SwitchView: View {
 
 private extension Text {
 
-    func applyStyle() -> some View {
+    func lineLimit(isUsedForAlignment: Bool) -> some View {
+        self.lineLimit(isUsedForAlignment ? 1 : nil)
+    }
+}
+
+private extension View {
+
+    func applyStyle(isUsedForAlignment: Bool) -> some View {
         return self.frame(
-            maxHeight: .infinity,
-            alignment: .center
+            maxHeight: isUsedForAlignment ? nil : .infinity,
+            alignment: isUsedForAlignment ? .top : .center
         )
         .accessibilityIdentifier(SwitchAccessibilityIdentifier.text)
     }
@@ -279,7 +296,6 @@ private extension Image {
             .aspectRatio(contentMode: .fit)
             .foregroundColor(viewModel.toggleDotForegroundColorToken?.color)
             .accessibilityIdentifier(SwitchAccessibilityIdentifier.toggleDotImageView)
-
     }
 }
 
