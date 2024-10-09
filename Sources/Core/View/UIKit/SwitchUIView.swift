@@ -617,7 +617,7 @@ public final class SwitchUIView: UIView {
     private func setupToggleContentViewConstraints() {
         self.toggleContentView.translatesAutoresizingMaskIntoConstraints = false
 
-        self.toggleContentView.heightAnchor.constraint(greaterThanOrEqualTo: self.toggleView.heightAnchor)
+        self.toggleContentView.heightAnchor.constraint(greaterThanOrEqualTo: self.toggleView.heightAnchor).isActive = true
     }
 
     private func setupToggleHidenLabelConstraints() {
