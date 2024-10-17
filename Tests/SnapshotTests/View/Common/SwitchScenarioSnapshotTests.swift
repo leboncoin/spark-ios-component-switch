@@ -179,9 +179,9 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
     /// - status : enabled
     /// - **label alignement : all**
     /// - is Icon : true
-    /// - **content resilience : all**
+    /// - content resilience : multiline label
     /// - mode : light
-    /// - **a11y size : xxxl**
+    /// - **a11y size : all**
     private func test5() -> [SwitchConfigurationSnapshotTests] {
         let alignments = SwitchAlignment.allCases
         let sizes = Constants.Sizes.all
@@ -195,7 +195,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
                     status: .enabled,
                     alignment: alignment,
                     isIcon: true,
-                    content: .shortLabel,
+                    content: .multilineLabel,
                     sizes: [size]
                 )
             }
