@@ -3,7 +3,7 @@
 //  SparkSwitch
 //
 //  Created by robin.lemaire on 12/05/2023.
-//  Copyright © 2023 Adevinta. All rights reserved.
+//  Copyright © 2023 Leboncoin. All rights reserved.
 //
 
 /// The accessibility identifiers for the switch.

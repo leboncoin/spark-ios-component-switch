@@ -3,7 +3,7 @@
 //  SparkSwitchSnapshotTests
 //
 //  Created by robin.lemaire on 09/10/2024.
-//  Copyright © 2023 Adevinta. All rights reserved.
+//  Copyright © 2023 Leboncoin. All rights reserved.
 //
 
 @testable import SparkSwitch
