@@ -1,175 +1,75 @@
 # Switch
-Component used when a simple choice (true/false) is needed in form.
+
+**Spark** is the [Leboncoin](https://www.leboncoin.fr/)'s _Design System_.
+
+The repository here contains only the **iOS Switch** for _SwiftUI_ and _UIKit_.
+
+You can also see all of our Spark iOS repositories on [Github](https://github.com/orgs/leboncoin/repositories?q=spark-ios+sort%3Aname-asc).
 
 ## Specifications
+
 The switch specifications on Zeroheight is [here](https://spark.adevinta.com/1186e1705/p/58a2c6-switch).
 
-![Figma anatomy](https://github.com/adevinta/spark-ios-component-switch/blob/main/.github/assets/anatomy.png)
+![Figma anatomy](https://github.com/leboncoin/spark-ios-component-switch/blob/main/.github/assets/anatomy.png)
 
-## Usage
-Switch is available both in UIKit and SwiftUI.
+## Technical Documentation
 
-### SwitchUIView
-Properties:
-* `theme`: The current Spark-Theme. [You can always define your own theme.](https://github.com/adevinta/spark-ios/wiki/Theming#your-own-theming)
-* `isOn`: The switch value. True if the switch is on, false if not.
-* `alignment`: The switch content alignment, e.g. left (means switch on the left, text on the right), right (means switch on the right, text on the left).
-* `intent`: The switch intent, e.g. main, support.
-* `isEnabled`: The switch state: enabled or not.
-* `images`: The optional switch images (composed of *on* and *off* state images).
-* `text`: The optional switch text.
-* `attributedText`: The optional switch attributed text.
-* `delegate`: The delegate used to notify about some changed on switch.
+You are a developer ? A technical documentation in _DocC_ is available [here](https://leboncoin.github.io/spark-ios-component-switch/).
 
-Published Properties:
-* `isOnChangedPublisher`: The publisher used to notify when isOn value changed on switch.
+### Swift Package Manager
 
-### SwitchView
-Properties:
-* `theme`: The current Spark-Theme. [You can always define your own theme.](https://github.com/adevinta/spark-ios/wiki/Theming#your-own-theming)
-* `isOn`: The switch value. True if the switch is on, false if not. It is a binding property.
-* `alignment`: The switch content alignment, e.g. left (means switch on the left, text on the right), right (means switch on the right, text on the left).
-* `intent`: The switch intent, e.g. main, support.
-* `images`: The optional switch images (composed of *on* and *off* state images).
-* `text`: The optional switch text.
-* `attributedText`: The optional switch attributed text.
-* `disabled`: The switch is disabled or not.
+_Note: Instructions below are for using **SPM** without the Xcode UI. It's the easiest to go to your Project Settings -> Swift Packages and add SparkSwitch from there._
 
-Default values:
-* `images`: `nil`
-* `text`: `nil`
-* `attributedText`: `nil`
-
-Modifiers:
-* `.images(SwitchImages?) -> Self`
-* `.text(String?) -> Self`
-* `.attributedText(AttributedString?) -> Self`
-* `.disabled(Bool) -> Self`
-
-## Initialization
-
-### UIKit
-
-There are four possibilities to initialize the switch.
+To integrate using Apple's Swift package manager, without Xcode integration, add the following as a dependency to your `Package.swift`:
 
 ```swift
-// Initialize a new switch view without images and with text.
-let switch = SwitchUIView(
-    theme: theme,
-    isOn: true,
-    alignment: .left,
-    intent: .main,
-    isEnabled: true,
-    text: "My Switch"
-)
+.package(url: "https://github.com/leboncoin/spark-ios-component-switch.git", .upToNextMajor(from: "1.0.0"))
 ```
+
+and then specify `SparkSwitch` as a dependency of the Target in which you wish to use the SparkSwitch.
+
+Here's an example `Package.swift`:
 
 ```swift
-// Initialize a new switch view without images and with attributedText.
-let switch = SwitchUIView(
-    theme: theme,
-    isOn: true,
-    alignment: .left,
-    intent: .main,
-    isEnabled: true,
-    attributedText: NSAttributedString(string: "My switch")
+// swift-tools-version:5.9
+import PackageDescription
+
+let package = Package(
+    name: "MyPackage",
+    platforms: [
+        .iOS(.v16)
+    ],
+    products: [
+        .library(
+            name: "MyPackage",
+            targets: ["MyPackage"]),
+    ],
+    dependencies: [
+        .package(
+            url: "https://github.com/leboncoin/spark-ios-component-switch.git",
+            .upToNextMajor(from: "1.0.0")
+        )
+    ],
+    targets: [
+        .target(
+            name: "MyPackage",
+            dependencies: [
+                .product(
+                    name: "SparkSwitch",
+                    package: "spark-ios-component-switch"
+                ),
+            ]
+        )
+    ]
 )
 ```
-
-```swift
-// Initialize a new switch view with images and without text and attributedText.
-let switch = SwitchUIView(
-    isEnabled: true
-    theme: theme,
-    isOn: true,
-    alignment: .left,
-    intent: .main,
-    isEnabled: true,
-    images: SwitchUIImages(
-        on: UIImage(systemName: "on"), 
-        off: UIImage(systemName: "off")
-    )
-)
-```
-
-```swift
-// Initialize a new switch view with images and text.
-let switch = SwitchUIView(
-    isEnabled: true
-    theme: theme,
-    isOn: true,
-    alignment: .left,
-    intent: .main,
-    isEnabled: true,
-    images: SwitchUIImages(
-        on: UIImage(systemName: "on"), 
-        off: UIImage(systemName: "off")
-    ),
-    text: "My Switch"
-)
-```
-
-```swift
-// Initialize a new switch view with images and attributed text.
-let switch = SwitchUIView(
-    isEnabled: true
-    theme: theme,
-    isOn: true,
-    alignment: .left,
-    intent: .main,
-    isEnabled: true,
-    images: SwitchUIImages(
-        on: UIImage(systemName: "on"), 
-        off: UIImage(systemName: "off")
-    ),
-    attributedText: NSAttributedString(string: "My switch")
-)
-```
-
-```swift
-// Initialize a new switch view without images, text and attributedText.
-let switch = SwitchUIView(
-    isEnabled: true
-    theme: theme,
-    isOn: true,
-    alignment: .left,
-    intent: .main,
-    isEnabled: true
-)
-```
-
-There's a `SwitchUIViewDelegate` with optional function to receive tap events:
-* `switchDidChange(_ SwitchUIView:, isOn: Bool)` - Event is called when user tap on switch and sends the new isOn state.
-
-**Important note**: There is no action when the user tap on the text.
-
-### SwiftUI
-
-```swift
-// Initialize a new switch view and update it with all modifiers.
-let switch = SwitchView(
-    isOn: true,
-    theme: theme,
-    intent: .main,
-    alignment: .left
-)
-.images: SwitchImages(
-    on: Image(systemName: "on"), 
-    off: Image(systemName: "off")
-)
-.text: "My switch"
-.attributedText: NSAttributedString(string: "My switch")
-.disabled(false)
-```
-
-**Important note**: There is no action when the user tap on the text.
 
 ## License
 
 ```
 MIT License
 
-Copyright (c) 2024 Adevinta
+Copyright (c) 2024 Leboncoin
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
