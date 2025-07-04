@@ -1,5 +1,5 @@
 //
-//  SwitchViewModelTests.swift
+//  SwitchViewModelDeprecatedTests.swift
 //  SparkSwitchTests
 //
 //  Created by robin.lemaire on 26/05/2023.
@@ -15,7 +15,7 @@ import Combine
 @_spi(SI_SPI) import SparkThemingTesting
 import SparkTheming
 
-final class SwitchViewModelTests: XCTestCase {
+final class SwitchViewModelDeprecatedTests: XCTestCase {
 
     // MARK: - Properties
 
@@ -1056,7 +1056,7 @@ final class SwitchViewModelTests: XCTestCase {
 
 // MARK: - Testing Dependencies
 
-private extension SwitchViewModelTests {
+private extension SwitchViewModelDeprecatedTests {
 
     func testGetColorsUseCaseMock(
         on stub: Stub,
@@ -1197,7 +1197,7 @@ private extension SwitchViewModelTests {
 
 // MARK: - Testing Publisher
 
-private extension SwitchViewModelTests {
+private extension SwitchViewModelDeprecatedTests {
 
     func testAllPublishedSinkCount(
         on stub: Stub,
@@ -1449,7 +1449,7 @@ private final class Stub {
 
     // MARK: - Properties
 
-    let viewModel: SwitchViewModel
+    let viewModel: SwitchViewModelDeprecated
 
     // MARK: - Data Properties
 
@@ -1478,7 +1478,7 @@ private final class Stub {
     let getToggleStateUseCaseMock: SwitchGetToggleStateUseCaseableGeneratedMock
     let displayedTextViewModelMock: DisplayedTextViewModelGeneratedMock
 
-    let dependenciesMock: SwitchViewModelDependenciesProtocolGeneratedMock
+    let dependenciesMock: SwitchViewModelDeprecatedDependenciesProtocolGeneratedMock
 
     // MARK: - Publisher Properties
 
@@ -1545,7 +1545,7 @@ private final class Stub {
         displayedTextViewModelMock.displayedText = .mocked()
         self.displayedTextViewModelMock = displayedTextViewModelMock
 
-        let dependenciesMock = SwitchViewModelDependenciesProtocolGeneratedMock()
+        let dependenciesMock = SwitchViewModelDeprecatedDependenciesProtocolGeneratedMock()
         dependenciesMock.underlyingGetColorsUseCase = self.getColorsUseCaseMock
         dependenciesMock.underlyingGetImagesStateUseCase = self.getImagesStateUseCaseMock
         dependenciesMock.underlyingGetToggleColorUseCase = self.getToggleColorUseCaseMock
@@ -1571,7 +1571,7 @@ private final class Stub {
             attributedTextEither = nil
         }
 
-        let viewModel = SwitchViewModel(
+        let viewModel = SwitchViewModelDeprecated(
             for: frameworkType,
             theme: self.themeMock,
             isOn: isOn,

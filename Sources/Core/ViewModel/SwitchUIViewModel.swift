@@ -1,5 +1,5 @@
 //
-//  SwitchViewModel.swift
+//  SwitchUIViewModel.swift
 //  SparkSwitch
 //
 //  Created by robin.lemaire on 02/07/2025.
@@ -12,7 +12,7 @@ import SparkTheming
 
 /// ViewModel only used by **SwiftUI** View.
 // sourcery: AutoPublisherTest, AutoViewModelStub
-internal class SwitchViewModel: ObservableObject {
+internal class SwitchUIViewModel: ObservableObject {
 
     // MARK: - Published Properties
 
@@ -20,15 +20,16 @@ internal class SwitchViewModel: ObservableObject {
     @Published private(set) var staticColors = SwitchStaticColors()
     @Published private(set) var contentRadius: CGFloat = 0
     @Published private(set) var dim: CGFloat = 1
-    @Published private(set) var titleFont: Font = .body
     @Published private(set) var isIcon: Bool = false
+    @Published private(set) var showSpace: SwitchSpace = .left
     @Published private(set) var spacing: CGFloat = 0
+    @Published private(set) var titleFont: UIFont = .systemFont(ofSize: 14)
 
     // MARK: - Properties
 
     private var alreadyUpdateAll = false
 
-    var theme: (any Theme)? {
+    var theme: any Theme {
         didSet {
             guard self.alreadyUpdateAll else { return }
 
@@ -41,15 +42,17 @@ internal class SwitchViewModel: ObservableObject {
         }
     }
 
-    var isOn: Bool? {
+    private(set) var isOn: Bool = false  {
         didSet {
             guard oldValue != self.isOn, self.alreadyUpdateAll else { return }
 
             self.setDynamicColors()
+            self.setShowSpace()
+            self.setIsIcon()
         }
     }
 
-    var isOnOffSwitchLabelsEnabled: Bool? {
+    var isOnOffSwitchLabelsEnabled: Bool = false {
         didSet {
             guard oldValue != self.isOnOffSwitchLabelsEnabled, self.alreadyUpdateAll else { return }
 
@@ -57,7 +60,7 @@ internal class SwitchViewModel: ObservableObject {
         }
     }
 
-    var contrast: ColorSchemeContrast? {
+    var contrast: UIAccessibilityContrast = .unspecified {
         didSet {
             guard oldValue != self.contrast, self.alreadyUpdateAll else { return }
 
@@ -65,7 +68,8 @@ internal class SwitchViewModel: ObservableObject {
         }
     }
 
-    var isEnabled: Bool? {
+
+    var isEnabled: Bool = true {
         didSet {
             guard oldValue != self.isEnabled, self.alreadyUpdateAll else { return }
 
@@ -73,48 +77,51 @@ internal class SwitchViewModel: ObservableObject {
         }
     }
 
+    var isReduceMotionEnabled: Bool = false
+    private var isOnAnimated: Bool = false
+
+    func animationType() -> UIExecuteAnimationType {
+        print("LOGROB animationType \(self.isOnAnimated) - reduce \(self.isReduceMotionEnabled)")
+
+        return self.isOnAnimated && !self.isReduceMotionEnabled ? .animated(duration: SwitchConstants.animationDuration) : .unanimated
+    }
+
     // MARK: - Use Case Properties
 
     private let getColorsUseCase: SwitchGetColorsUseCaseable
     private let getContentRadiusUseCase: SwitchGetContentRadiusUseCaseable
     private let getDimUseCase: SwitchGetDimUseCaseable
-    private let getTitleFontUseCase: SwitchGetTitleFontUseCaseable
     private let getIsIconUseCase: SwitchGetIsIconUseCaseable
+    private let getShowSpaceUseCaseable: SwitchGetShowSpaceUseCaseable
     private let getSpacingUseCase: SwitchGetSpacingUseCaseable
+    private let getTitleFontUseCase: SwitchGetTitleFontUseCaseable
 
     // MARK: - Initialization
 
     init(
+        theme: any Theme,
         getColorsUseCase: SwitchGetColorsUseCaseable = SwitchGetColorsUseCase(),
         getContentRadiusUseCase: SwitchGetContentRadiusUseCaseable = SwitchGetContentRadiusUseCase(),
         getDimUseCase: SwitchGetDimUseCaseable = SwitchGetDimUseCase(),
-        getTitleFontUseCase: SwitchGetTitleFontUseCaseable = SwitchGetTitleFontUseCase(),
         getIsIconUseCase: SwitchGetIsIconUseCaseable = SwitchGetIsIconUseCase(),
-        getSpacingUseCase: SwitchGetSpacingUseCaseable = SwitchGetSpacingUseCase()
+        getShowSpaceUseCaseable: SwitchGetShowSpaceUseCaseable = SwitchGetShowSpaceUseCase(),
+        getSpacingUseCase: SwitchGetSpacingUseCaseable = SwitchGetSpacingUseCase(),
+        getTitleFontUseCase: SwitchGetTitleFontUseCaseable = SwitchGetTitleFontUseCase()
     ) {
+        self.theme = theme
+
         self.getColorsUseCase = getColorsUseCase
         self.getContentRadiusUseCase = getContentRadiusUseCase
         self.getDimUseCase = getDimUseCase
-        self.getTitleFontUseCase = getTitleFontUseCase
         self.getIsIconUseCase = getIsIconUseCase
+        self.getShowSpaceUseCaseable = getShowSpaceUseCaseable
         self.getSpacingUseCase = getSpacingUseCase
+        self.getTitleFontUseCase = getTitleFontUseCase
     }
 
-    // MARK: - Setup
+    // MARK: - Load
 
-    func setup(
-        theme: Theme,
-        isOn: Bool,
-        isOnOffSwitchLabelsEnabled: Bool,
-        contrast: ColorSchemeContrast,
-        isEnabled: Bool
-    ) {
-        self.theme = theme
-        self.isOn = isOn
-        self.isOnOffSwitchLabelsEnabled = isOnOffSwitchLabelsEnabled
-        self.contrast = contrast
-        self.isEnabled = isEnabled
-
+    func load() {
         self.setDynamicColors()
         self.setStaticColors()
         self.setContentRadius()
@@ -126,70 +133,62 @@ internal class SwitchViewModel: ObservableObject {
         self.alreadyUpdateAll = true
     }
 
+    // MARK: - Action
+
+    func toggle() {
+        if self.isEnabled {
+            self.isOnAnimated = true
+            self.isOn.toggle()
+        }
+    }
+
+    // MARK: - Public Setter
+
+    func setIsOn(_ isOn: Bool, animated: Bool = false) {
+        self.isOnAnimated = animated
+        self.isOn = isOn
+    }
+
     // MARK: - Private Setter
 
     private func setDynamicColors() {
-        guard let theme, let isOn else {
-            return
-        }
-
         self.dynamicColors = self.getColorsUseCase.executeDynamic(
-            theme: theme,
-            isOn: isOn
+            theme: self.theme,
+            isOn: self.isOn
         )
     }
 
     private func setStaticColors() {
-        guard let theme else {
-            return
-        }
-
-        self.staticColors = self.getColorsUseCase.executeStatic(theme: theme)
+        self.staticColors = self.getColorsUseCase.executeStatic(theme: self.theme)
     }
 
     private func setContentRadius() {
-        guard let theme else {
-            return
-        }
-
-        self.contentRadius = self.getContentRadiusUseCase.execute(theme: theme)
+        self.contentRadius = self.getContentRadiusUseCase.execute(theme: self.theme)
     }
 
     private func setDim() {
-        guard let theme, let isEnabled else {
-            return
-        }
-
         self.dim = self.getDimUseCase.execute(
-            theme: theme,
-            isEnabled: isEnabled
+            theme: self.theme,
+            isEnabled: self.isEnabled
         )
     }
 
     private func setFont() {
-        guard let theme else {
-            return
-        }
-
-        self.titleFont = self.getTitleFontUseCase.execute(theme: theme)
+        self.titleFont = self.getTitleFontUseCase.executeUI(theme: self.theme)
     }
 
     private func setIsIcon() {
-        guard let isOnOffSwitchLabelsEnabled, let contrast else {
-            return
-        }
-
-        self.isIcon = self.getIsIconUseCase.execute(
-            isOnOffSwitchLabelsEnabled: isOnOffSwitchLabelsEnabled,
-            contrast: contrast
+        self.isIcon = self.getIsIconUseCase.executeUI(
+            isOnOffSwitchLabelsEnabled: self.isOnOffSwitchLabelsEnabled,
+            contrast: self.contrast
         )
     }
-    
-    private func setSpacing() {
-        guard let theme else {
-            return
-        }
 
-        self.spacing = self.getSpacingUseCase.execute(theme: theme)
+    private func setShowSpace() {
+        self.showSpace = self.getShowSpaceUseCaseable.execute(isOn: self.isOn)
+    }
+
+    private func setSpacing() {
+        self.spacing = self.getSpacingUseCase.execute(theme: self.theme)
     }
 }
