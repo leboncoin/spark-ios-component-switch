@@ -184,7 +184,7 @@ internal class SwitchViewModel: ObservableObject {
             contrast: contrast
         )
     }
-    
+
     private func setSpacing() {
         guard let theme else {
             return

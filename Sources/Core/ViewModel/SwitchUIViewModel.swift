@@ -68,7 +68,6 @@ internal class SwitchUIViewModel: ObservableObject {
         }
     }
 
-
     var isEnabled: Bool = true {
         didSet {
             guard oldValue != self.isEnabled, self.alreadyUpdateAll else { return }
@@ -77,17 +76,27 @@ internal class SwitchUIViewModel: ObservableObject {
         }
     }
 
-    var isReduceMotionEnabled: Bool = false
-    private var isOnAnimated: Bool = false
+    var isReduceMotionEnabled: Bool = false {
+        didSet {
+            guard oldValue != self.isReduceMotionEnabled, self.alreadyUpdateAll else { return }
 
-    func animationType() -> UIExecuteAnimationType {
-        print("LOGROB animationType \(self.isOnAnimated) - reduce \(self.isReduceMotionEnabled)")
-
-        return self.isOnAnimated && !self.isReduceMotionEnabled ? .animated(duration: SwitchConstants.animationDuration) : .unanimated
+            self.setAnimationType()
+        }
     }
+
+    private var isOnAnimated: Bool = false {
+        didSet {
+            guard oldValue != self.isOnAnimated, self.alreadyUpdateAll else { return }
+
+            self.setAnimationType()
+        }
+    }
+
+    private(set) var animationType: UIExecuteAnimationType = .unanimated
 
     // MARK: - Use Case Properties
 
+    private let getAnimationTypeUseCase: SwitchGetAnimationTypeUseCaseable
     private let getColorsUseCase: SwitchGetColorsUseCaseable
     private let getContentRadiusUseCase: SwitchGetContentRadiusUseCaseable
     private let getDimUseCase: SwitchGetDimUseCaseable
@@ -100,6 +109,7 @@ internal class SwitchUIViewModel: ObservableObject {
 
     init(
         theme: any Theme,
+        getAnimationTypeUseCase: SwitchGetAnimationTypeUseCaseable = SwitchGetAnimationTypeUseCase(),
         getColorsUseCase: SwitchGetColorsUseCaseable = SwitchGetColorsUseCase(),
         getContentRadiusUseCase: SwitchGetContentRadiusUseCaseable = SwitchGetContentRadiusUseCase(),
         getDimUseCase: SwitchGetDimUseCaseable = SwitchGetDimUseCase(),
@@ -110,6 +120,7 @@ internal class SwitchUIViewModel: ObservableObject {
     ) {
         self.theme = theme
 
+        self.getAnimationTypeUseCase = getAnimationTypeUseCase
         self.getColorsUseCase = getColorsUseCase
         self.getContentRadiusUseCase = getContentRadiusUseCase
         self.getDimUseCase = getDimUseCase
@@ -121,13 +132,23 @@ internal class SwitchUIViewModel: ObservableObject {
 
     // MARK: - Load
 
-    func load() {
+    func load(
+        isOnOffSwitchLabelsEnabled: Bool,
+        isReduceMotionEnabled: Bool,
+        contrast: UIAccessibilityContrast
+    ) {
+        self.isOnOffSwitchLabelsEnabled = isOnOffSwitchLabelsEnabled
+        self.isReduceMotionEnabled = isReduceMotionEnabled
+        self.contrast = contrast
+
+        self.setAnimationType()
         self.setDynamicColors()
         self.setStaticColors()
         self.setContentRadius()
         self.setDim()
         self.setFont()
         self.setIsIcon()
+        self.setShowSpace()
         self.setSpacing()
 
         self.alreadyUpdateAll = true
@@ -142,9 +163,9 @@ internal class SwitchUIViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Public Setter
-
     func setIsOn(_ isOn: Bool, animated: Bool = false) {
+        guard isOn != self.isOn else { return }
+
         self.isOnAnimated = animated
         self.isOn = isOn
     }
@@ -190,5 +211,9 @@ internal class SwitchUIViewModel: ObservableObject {
 
     private func setSpacing() {
         self.spacing = self.getSpacingUseCase.execute(theme: self.theme)
+    }
+
+    private func setAnimationType() {
+        self.animationType = self.getAnimationTypeUseCase.execute(isOnAnimated: self.isOnAnimated, isReduceMotionEnabled: self.isReduceMotionEnabled)
     }
 }

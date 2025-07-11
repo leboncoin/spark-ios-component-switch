@@ -1,5 +1,5 @@
 //
-//  SwitchViewModelTests.swift
+//  SwitchUIViewModelTests.swift
 //  SparkSwitchTests
 //
 //  Created by robin.lemaire on 10/07/2025.
@@ -14,9 +14,9 @@ import SparkTheming
 @_spi(SI_SPI) import SparkThemingTesting
 import SwiftUI
 
-final class SwitchViewModelTests: XCTestCase {
+final class SwitchUIViewModelTests: XCTestCase {
 
-    // MARK: - Initialization Test
+    // MARK: - Initialization Tests
 
     func test_initialization_shouldUseDefaultValues() {
         // GIVEN / WHEN
@@ -25,48 +25,61 @@ final class SwitchViewModelTests: XCTestCase {
         // THEN
         XCTAssertEqualToExpected(
             on: stub,
+            otherIsOn: false,
+            otherAnimationType: .unanimated,
             otherDynamicColors: .init(),
             otherStaticColors: .init(),
             otherContentRadius: 0,
             otherDim: 1,
-            otherTitleFont: .body,
             otherIsIcon: false,
-            otherSpacing: 0
+            otherShowSpace: .left,
+            otherSpacing: 0,
+            otherTitleFont: .systemFont(ofSize: 14)
         )
 
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
+            getAnimationType: true,
             getDynamicColors: true,
             getStaticColors: true,
             getContentRadius: true,
             getDim: true,
-            getTitleFont: true,
             getIsIcon: true,
-            getSpacing: true
+            getShowSpace: true,
+            getSpacing: true,
+            getTitleFont: true
         )
     }
 
-    // MARK: - Setup Tests
+    // MARK: - Load Tests
 
-    func test_setup_shouldCallAllUseCases() {
+    func test_load_shouldCallAllUseCases_exceptAnimationType() {
         // GIVEN
         let stub = Stub()
         let viewModel = stub.viewModel
 
         // WHEN
-        viewModel.setup(stub: stub)
+        viewModel.load(stub: stub)
 
         // THEN
         XCTAssertEqualToExpected(on: stub)
 
         // **
         // UseCase Calls Count
+        SwitchGetAnimationTypeUseCaseableMockTest.XCTAssert(
+            stub.getAnimationTypeUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenIsOnAnimated: false,
+            givenIsReduceMotionEnabled: stub.givenIsReduceMotionEnabled,
+            expectedReturnValue: stub.expectedAnimationType
+        )
+
         SwitchGetColorsUseCaseableMockTest.XCTAssert(
             stub.getColorsUseCaseMock,
             expectedNumberOfCalls: 1,
             givenTheme: stub.givenTheme,
-            givenIsOn: stub.givenIsOn,
+            givenIsOn: false,
             expectedReturnValue: stub.expectedDynamicColors
         )
 
@@ -88,15 +101,8 @@ final class SwitchViewModelTests: XCTestCase {
             stub.getDimUseCaseMock,
             expectedNumberOfCalls: 1,
             givenTheme: stub.givenTheme,
-            givenIsEnabled: stub.givenIsEnabled,
+            givenIsEnabled: true,
             expectedReturnValue: stub.expectedDim
-        )
-
-        SwitchGetTitleFontUseCaseableMockTest.XCTAssert(
-            stub.getTitleFontUseCaseMock,
-            expectedNumberOfCalls: 1,
-            givenTheme: stub.givenTheme,
-            expectedReturnValue: stub.expectedTitleFont
         )
 
         SwitchGetIsIconUseCaseableMockTest.XCTAssert(
@@ -107,23 +113,37 @@ final class SwitchViewModelTests: XCTestCase {
             expectedReturnValue: stub.expectedIsIcon
         )
 
+        SwitchGetShowSpaceUseCaseableMockTest.XCTAssert(
+            stub.getShowSpaceUseCaseableMock,
+            expectedNumberOfCalls: 1,
+            givenIsOn: false,
+            expectedReturnValue: stub.expectedShowSpace
+        )
+
         SwitchGetSpacingUseCaseableMockTest.XCTAssert(
             stub.getSpacingUseCaseMock,
             expectedNumberOfCalls: 1,
             givenTheme: stub.givenTheme,
             expectedReturnValue: stub.expectedSpacing
         )
+
+        SwitchGetTitleFontUseCaseableMockTest.XCTAssert(
+            stub.getTitleFontUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenTheme: stub.givenTheme,
+            expectedReturnValue: stub.expectedTitleFont
+        )
         // **
     }
 
-    // MARK: - Setter
+    // MARK: - Setter Tests
 
-    func test_themeChanged_shouldUpdateAllProperties_exceptIsIcon() {
+    func test_themeChanged_shouldUpdateSomeProperties() {
         // GIVEN
         let stub = Stub()
         let viewModel = stub.viewModel
 
-        viewModel.setup(stub: stub)
+        viewModel.load(stub: stub)
         stub.resetMockedData()
 
         let givenTheme = ThemeGeneratedMock.mocked()
@@ -138,14 +158,16 @@ final class SwitchViewModelTests: XCTestCase {
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
-            getIsIcon: true
+            getAnimationType: true,
+            getIsIcon: true,
+            getShowSpace: true
         )
 
         SwitchGetColorsUseCaseableMockTest.XCTAssert(
             stub.getColorsUseCaseMock,
             expectedNumberOfCalls: 1,
             givenTheme: givenTheme,
-            givenIsOn: stub.givenIsOn,
+            givenIsOn: false,
             expectedReturnValue: stub.expectedDynamicColors
         )
 
@@ -167,15 +189,8 @@ final class SwitchViewModelTests: XCTestCase {
             stub.getDimUseCaseMock,
             expectedNumberOfCalls: 1,
             givenTheme: givenTheme,
-            givenIsEnabled: stub.givenIsEnabled,
+            givenIsEnabled: true,
             expectedReturnValue: stub.expectedDim
-        )
-
-        SwitchGetTitleFontUseCaseableMockTest.XCTAssert(
-            stub.getTitleFontUseCaseMock,
-            expectedNumberOfCalls: 1,
-            givenTheme: givenTheme,
-            expectedReturnValue: stub.expectedTitleFont
         )
 
         SwitchGetSpacingUseCaseableMockTest.XCTAssert(
@@ -184,43 +199,12 @@ final class SwitchViewModelTests: XCTestCase {
             givenTheme: givenTheme,
             expectedReturnValue: stub.expectedSpacing
         )
-        // **
-    }
 
-    func test_isOnChanged_shouldUpdateDynamicColors() {
-        // GIVEN
-        let stub = Stub()
-        let viewModel = stub.viewModel
-
-        viewModel.setup(stub: stub)
-        stub.resetMockedData()
-
-        let givenIsOn = false
-
-        // WHEN
-        viewModel.isOn = givenIsOn
-
-        // THEN
-        XCTAssertEqualToExpected(on: stub)
-
-        // **
-        // UseCase Calls Count
-        XCTAssertNotCalled(
-            on: stub,
-            getStaticColors: true,
-            getContentRadius: true,
-            getDim: true,
-            getTitleFont: true,
-            getIsIcon: true,
-            getSpacing: true
-        )
-
-        SwitchGetColorsUseCaseableMockTest.XCTAssert(
-            stub.getColorsUseCaseMock,
+        SwitchGetTitleFontUseCaseableMockTest.XCTAssert(
+            stub.getTitleFontUseCaseMock,
             expectedNumberOfCalls: 1,
-            givenTheme: stub.givenTheme,
-            givenIsOn: givenIsOn,
-            expectedReturnValue: stub.expectedDynamicColors
+            givenTheme: givenTheme,
+            expectedReturnValue: stub.expectedTitleFont
         )
         // **
     }
@@ -230,7 +214,7 @@ final class SwitchViewModelTests: XCTestCase {
         let stub = Stub()
         let viewModel = stub.viewModel
 
-        viewModel.setup(stub: stub)
+        viewModel.load(stub: stub)
         stub.resetMockedData()
 
         let givenIsOnOffSwitchLabelsEnabled = true
@@ -245,12 +229,14 @@ final class SwitchViewModelTests: XCTestCase {
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
+            getAnimationType: true,
             getDynamicColors: true,
             getStaticColors: true,
             getContentRadius: true,
             getDim: true,
-            getTitleFont: true,
-            getSpacing: true
+            getShowSpace: true,
+            getSpacing: true,
+            getTitleFont: true
         )
 
         SwitchGetIsIconUseCaseableMockTest.XCTAssert(
@@ -268,10 +254,10 @@ final class SwitchViewModelTests: XCTestCase {
         let stub = Stub()
         let viewModel = stub.viewModel
 
-        viewModel.setup(stub: stub)
+        viewModel.load(stub: stub)
         stub.resetMockedData()
 
-        let givenContrast = ColorSchemeContrast.increased
+        let givenContrast = UIAccessibilityContrast.high
 
         // WHEN
         viewModel.contrast = givenContrast
@@ -283,12 +269,14 @@ final class SwitchViewModelTests: XCTestCase {
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
+            getAnimationType: true,
             getDynamicColors: true,
             getStaticColors: true,
             getContentRadius: true,
             getDim: true,
-            getTitleFont: true,
-            getSpacing: true
+            getShowSpace: true,
+            getSpacing: true,
+            getTitleFont: true
         )
 
         SwitchGetIsIconUseCaseableMockTest.XCTAssert(
@@ -306,10 +294,10 @@ final class SwitchViewModelTests: XCTestCase {
         let stub = Stub()
         let viewModel = stub.viewModel
 
-        viewModel.setup(stub: stub)
+        viewModel.load(stub: stub)
         stub.resetMockedData()
 
-        let givenIsEnabled = true
+        let givenIsEnabled = false
 
         // WHEN
         viewModel.isEnabled = givenIsEnabled
@@ -321,12 +309,14 @@ final class SwitchViewModelTests: XCTestCase {
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
+            getAnimationType: true,
             getDynamicColors: true,
             getStaticColors: true,
             getContentRadius: true,
-            getTitleFont: true,
             getIsIcon: true,
-            getSpacing: true
+            getShowSpace: true,
+            getSpacing: true,
+            getTitleFont: true
         )
 
         SwitchGetDimUseCaseableMockTest.XCTAssert(
@@ -339,19 +329,59 @@ final class SwitchViewModelTests: XCTestCase {
         // **
     }
 
+    func test_isReduceMotionEnabled_shouldUpdateAnimationType() {
+        // GIVEN
+        let stub = Stub()
+        let viewModel = stub.viewModel
+
+        viewModel.load(stub: stub)
+        stub.resetMockedData()
+
+        let givenIsReduceMotionEnabled = true
+
+        // WHEN
+        viewModel.isReduceMotionEnabled = givenIsReduceMotionEnabled
+
+        // THEN
+        XCTAssertEqualToExpected(on: stub)
+
+        // **
+        // UseCase Calls Count
+        XCTAssertNotCalled(
+            on: stub,
+            getDynamicColors: true,
+            getStaticColors: true,
+            getContentRadius: true,
+            getIsIcon: true,
+            getShowSpace: true,
+            getSpacing: true,
+            getTitleFont: true
+        )
+
+        SwitchGetAnimationTypeUseCaseableMockTest.XCTAssert(
+            stub.getAnimationTypeUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenIsOnAnimated: false,
+            givenIsReduceMotionEnabled: givenIsReduceMotionEnabled,
+            expectedReturnValue: stub.expectedAnimationType
+        )
+        // **
+    }
+
     func test_allSetter_exceptTheme_withoutChange() {
         // GIVEN
         let stub = Stub()
         let viewModel = stub.viewModel
 
-        viewModel.setup(stub: stub)
+        viewModel.load(stub: stub)
         stub.resetMockedData()
 
         // WHEN
-        viewModel.isOn = stub.givenIsOn
+        viewModel.setIsOn(false)
         viewModel.isOnOffSwitchLabelsEnabled = stub.givenIsOnOffSwitchLabelsEnabled
         viewModel.contrast = stub.givenContrast
-        viewModel.isEnabled = stub.givenIsEnabled
+        viewModel.isEnabled = true
+        viewModel.isReduceMotionEnabled = stub.givenIsReduceMotionEnabled
 
         // THEN
         XCTAssertEqualToExpected(on: stub)
@@ -359,78 +389,211 @@ final class SwitchViewModelTests: XCTestCase {
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
+            getAnimationType: true,
             getDynamicColors: true,
             getStaticColors: true,
             getContentRadius: true,
             getDim: true,
-            getTitleFont: true,
             getIsIcon: true,
-            getSpacing: true
+            getShowSpace: true,
+            getSpacing: true,
+            getTitleFont: true
         )
     }
 
-    func test_allSetter_exceptTheme_withoutSetupBefore() {
+    func test_allSetter_exceptTheme_withoutLoadBefore() {
         // GIVEN
         let stub = Stub()
         let viewModel = stub.viewModel
 
         // WHEN
-        viewModel.isOn = false
+        viewModel.setIsOn(true)
         viewModel.isOnOffSwitchLabelsEnabled = true
-        viewModel.contrast = .increased
-        viewModel.isEnabled = true
+        viewModel.contrast = .high
+        viewModel.isEnabled = false
+        viewModel.isReduceMotionEnabled = true
 
         // THEN
         XCTAssertEqualToExpected(
             on: stub,
+            otherAnimationType: .unanimated,
             otherDynamicColors: .init(),
             otherStaticColors: .init(),
             otherContentRadius: 0,
             otherDim: 1,
-            otherTitleFont: .body,
             otherIsIcon: false,
-            otherSpacing: 0
+            otherShowSpace: .left,
+            otherSpacing: 0,
+            otherTitleFont: .systemFont(ofSize: 14)
         )
 
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
+            getAnimationType: true,
             getDynamicColors: true,
             getStaticColors: true,
             getContentRadius: true,
             getDim: true,
-            getTitleFont: true,
             getIsIcon: true,
-            getSpacing: true
+            getShowSpace: true,
+            getSpacing: true,
+            getTitleFont: true
         )
+    }
+
+    // MARK: - Action
+
+    func test_toggle() {
+        // GIVEN
+        let stub = Stub()
+        let viewModel = stub.viewModel
+
+        viewModel.load(stub: stub)
+        stub.resetMockedData()
+
+        // WHEN
+        viewModel.toggle()
+
+        // THEN
+        XCTAssertEqualToExpected(on: stub)
+
+        // **
+        // UseCase Calls Count
+        XCTAssertNotCalled(
+            on: stub,
+            getStaticColors: true,
+            getContentRadius: true,
+            getDim: true,
+            getSpacing: true,
+            getTitleFont: true
+        )
+
+        SwitchGetAnimationTypeUseCaseableMockTest.XCTAssert(
+            stub.getAnimationTypeUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenIsOnAnimated: true,
+            givenIsReduceMotionEnabled: stub.givenIsReduceMotionEnabled,
+            expectedReturnValue: stub.expectedAnimationType
+        )
+
+        SwitchGetColorsUseCaseableMockTest.XCTAssert(
+            stub.getColorsUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenTheme: stub.givenTheme,
+            givenIsOn: true,
+            expectedReturnValue: stub.expectedDynamicColors
+        )
+
+        SwitchGetIsIconUseCaseableMockTest.XCTAssert(
+            stub.getIsIconUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenIsOnOffSwitchLabelsEnabled: stub.givenIsOnOffSwitchLabelsEnabled,
+            givenContrast: stub.givenContrast,
+            expectedReturnValue: stub.expectedIsIcon
+        )
+
+        SwitchGetShowSpaceUseCaseableMockTest.XCTAssert(
+            stub.getShowSpaceUseCaseableMock,
+            expectedNumberOfCalls: 1,
+            givenIsOn: true,
+            expectedReturnValue: stub.expectedShowSpace
+        )
+        // **
+    }
+
+    func test_setIsOn() {
+        // GIVEN
+        let stub = Stub()
+        let viewModel = stub.viewModel
+
+        viewModel.load(stub: stub)
+        stub.resetMockedData()
+
+        let givenIsOn = true
+        let givenIsAnimated = true
+
+        // WHEN
+        viewModel.setIsOn(true, animated: givenIsAnimated)
+
+        // THEN
+        XCTAssertEqualToExpected(on: stub)
+
+        // **
+        // UseCase Calls Count
+        XCTAssertNotCalled(
+            on: stub,
+            getStaticColors: true,
+            getContentRadius: true,
+            getDim: true,
+            getSpacing: true,
+            getTitleFont: true
+        )
+
+        SwitchGetAnimationTypeUseCaseableMockTest.XCTAssert(
+            stub.getAnimationTypeUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenIsOnAnimated: givenIsAnimated,
+            givenIsReduceMotionEnabled: stub.givenIsReduceMotionEnabled,
+            expectedReturnValue: stub.expectedAnimationType
+        )
+
+        SwitchGetColorsUseCaseableMockTest.XCTAssert(
+            stub.getColorsUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenTheme: stub.givenTheme,
+            givenIsOn: givenIsOn,
+            expectedReturnValue: stub.expectedDynamicColors
+        )
+
+        SwitchGetIsIconUseCaseableMockTest.XCTAssert(
+            stub.getIsIconUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenIsOnOffSwitchLabelsEnabled: stub.givenIsOnOffSwitchLabelsEnabled,
+            givenContrast: stub.givenContrast,
+            expectedReturnValue: stub.expectedIsIcon
+        )
+
+        SwitchGetShowSpaceUseCaseableMockTest.XCTAssert(
+            stub.getShowSpaceUseCaseableMock,
+            expectedNumberOfCalls: 1,
+            givenIsOn: givenIsOn,
+            expectedReturnValue: stub.expectedShowSpace
+        )
+        // **
     }
 }
 
 // MARK: - Stub
 
-private final class Stub: SwitchViewModelStub {
+private final class Stub: SwitchUIViewModelStub {
 
     // MARK: - Given Properties
 
     let givenTheme = ThemeGeneratedMock.mocked()
-    let givenIsOn = true
     let givenIsOnOffSwitchLabelsEnabled: Bool = false
-    let givenContrast: ColorSchemeContrast = .standard
+    let givenContrast: UIAccessibilityContrast = .normal
     let givenIsEnabled: Bool = false
+    let givenIsReduceMotionEnabled = false
 
     // MARK: - Expected Properties
 
+    let expectedAnimationType = UIExecuteAnimationType.animated(duration: 2)
     let expectedDynamicColors = SwitchDynamicColors()
     let expectedStaticColors = SwitchStaticColors()
     let expectedContentRadius: CGFloat = 4
     let expectedDim: CGFloat = 0.5
-    let expectedTitleFont: Font = .title
     let expectedIsIcon: Bool = true
+    let expectedShowSpace: SwitchSpace = .right
     let expectedSpacing: CGFloat = 10
+    let expectedTitleFont: UIFont = .systemFont(ofSize: 14)
 
     // MARK: - Initialization
 
     init() {
+        let getAnimationTypeUseCaseMock = SwitchGetAnimationTypeUseCaseableGeneratedMock()
+        getAnimationTypeUseCaseMock.executeWithIsOnAnimatedAndIsReduceMotionEnabledReturnValue = self.expectedAnimationType
+
         let getColorsUseCaseMock = SwitchGetColorsUseCaseableGeneratedMock()
         getColorsUseCaseMock.executeStaticWithThemeReturnValue = self.expectedStaticColors
         getColorsUseCaseMock.executeDynamicWithThemeAndIsOnReturnValue = self.expectedDynamicColors
@@ -441,47 +604,53 @@ private final class Stub: SwitchViewModelStub {
         let getDimUseCaseMock = SwitchGetDimUseCaseableGeneratedMock()
         getDimUseCaseMock.executeWithThemeAndIsEnabledReturnValue = self.expectedDim
 
-        let getTitleFontUseCaseMock = SwitchGetTitleFontUseCaseableGeneratedMock()
-        getTitleFontUseCaseMock.executeWithThemeReturnValue = self.expectedTitleFont
-
         let getIsIconUseCaseMock = SwitchGetIsIconUseCaseableGeneratedMock()
-        getIsIconUseCaseMock.executeWithIsOnOffSwitchLabelsEnabledAndContrastReturnValue = self.expectedIsIcon
+        getIsIconUseCaseMock.executeUIWithIsOnOffSwitchLabelsEnabledAndContrastReturnValue = self.expectedIsIcon
+
+        let getShowSpaceUseCaseMock = SwitchGetShowSpaceUseCaseableGeneratedMock()
+        getShowSpaceUseCaseMock.executeWithIsOnReturnValue = self.expectedShowSpace
 
         let getSpacingUseCaseMock = SwitchGetSpacingUseCaseableGeneratedMock()
         getSpacingUseCaseMock.executeWithThemeReturnValue = self.expectedSpacing
 
-        let viewModel = SwitchViewModel(
+        let getTitleFontUseCaseMock = SwitchGetTitleFontUseCaseableGeneratedMock()
+        getTitleFontUseCaseMock.executeUIWithThemeReturnValue = self.expectedTitleFont
+
+        let viewModel = SwitchUIViewModel(
+            theme: givenTheme,
+            getAnimationTypeUseCase: getAnimationTypeUseCaseMock,
             getColorsUseCase: getColorsUseCaseMock,
             getContentRadiusUseCase: getContentRadiusUseCaseMock,
             getDimUseCase: getDimUseCaseMock,
-            getTitleFontUseCase: getTitleFontUseCaseMock,
             getIsIconUseCase: getIsIconUseCaseMock,
-            getSpacingUseCase: getSpacingUseCaseMock
+            getShowSpaceUseCaseable: getShowSpaceUseCaseMock,
+            getSpacingUseCase: getSpacingUseCaseMock,
+            getTitleFontUseCase: getTitleFontUseCaseMock
         )
 
         super.init(
             viewModel: viewModel,
+            getAnimationTypeUseCaseMock: getAnimationTypeUseCaseMock,
             getColorsUseCaseMock: getColorsUseCaseMock,
             getContentRadiusUseCaseMock: getContentRadiusUseCaseMock,
             getDimUseCaseMock: getDimUseCaseMock,
-            getTitleFontUseCaseMock: getTitleFontUseCaseMock,
             getIsIconUseCaseMock: getIsIconUseCaseMock,
-            getSpacingUseCaseMock: getSpacingUseCaseMock
+            getShowSpaceUseCaseableMock: getShowSpaceUseCaseMock,
+            getSpacingUseCaseMock: getSpacingUseCaseMock,
+            getTitleFontUseCaseMock: getTitleFontUseCaseMock
         )
     }
 }
 
 // MARK: - Extension
 
-private extension SwitchViewModel {
+private extension SwitchUIViewModel {
 
-    func setup(stub: Stub) {
-        self.setup(
-            theme: stub.givenTheme,
-            isOn: stub.givenIsOn,
+    func load(stub: Stub) {
+        self.load(
             isOnOffSwitchLabelsEnabled: stub.givenIsOnOffSwitchLabelsEnabled,
-            contrast: stub.givenContrast,
-            isEnabled: stub.givenIsEnabled
+            isReduceMotionEnabled: stub.givenIsReduceMotionEnabled,
+            contrast: stub.givenContrast
         )
     }
 }
@@ -490,14 +659,23 @@ private extension SwitchViewModel {
 
 private func XCTAssertNotCalled(
     on stub: Stub,
+    getAnimationType getAnimationTypeNotCalled: Bool = false,
     getDynamicColors getDynamicColorsNotCalled: Bool = false,
     getStaticColors getStaticColorsNotCalled: Bool = false,
     getContentRadius getContentRadiusNotCalled: Bool = false,
     getDim getDimNotCalled: Bool = false,
-    getTitleFont getTitleFontNotCalled: Bool = false,
     getIsIcon getIsIconNotCalled: Bool = false,
-    getSpacing getSpacingNotCalled: Bool = false
+    getShowSpace getShowSpaceNotCalled: Bool = false,
+    getSpacing getSpacingNotCalled: Bool = false,
+    getTitleFont getTitleFontNotCalled: Bool = false
 ) {
+    if getAnimationTypeNotCalled {
+        SwitchGetAnimationTypeUseCaseableMockTest.XCTCallsCount(
+            stub.getAnimationTypeUseCaseMock,
+            executeWithIsOnAnimatedAndIsReduceMotionEnabledNumberOfCalls: 0
+        )
+    }
+
     if getDynamicColorsNotCalled {
         SwitchGetColorsUseCaseableMockTest.XCTCallsCount(
             stub.getColorsUseCaseMock,
@@ -526,17 +704,17 @@ private func XCTAssertNotCalled(
         )
     }
 
-    if getTitleFontNotCalled {
-        SwitchGetTitleFontUseCaseableMockTest.XCTCallsCount(
-            stub.getTitleFontUseCaseMock,
-            executeUIWithThemeNumberOfCalls: 0
-        )
-    }
-
     if getIsIconNotCalled {
         SwitchGetIsIconUseCaseableMockTest.XCTCallsCount(
             stub.getIsIconUseCaseMock,
             executeUIWithIsOnOffSwitchLabelsEnabledAndContrastNumberOfCalls: 0
+        )
+    }
+
+    if getShowSpaceNotCalled {
+        SwitchGetShowSpaceUseCaseableMockTest.XCTCallsCount(
+            stub.getShowSpaceUseCaseableMock,
+            executeWithIsOnNumberOfCalls: 0
         )
     }
 
@@ -546,20 +724,43 @@ private func XCTAssertNotCalled(
             executeWithThemeNumberOfCalls: 0
         )
     }
+
+    if getTitleFontNotCalled {
+        SwitchGetTitleFontUseCaseableMockTest.XCTCallsCount(
+            stub.getTitleFontUseCaseMock,
+            executeUIWithThemeNumberOfCalls: 0
+        )
+    }
 }
 
 private func XCTAssertEqualToExpected(
     on stub: Stub,
+    otherIsOn: Bool? = nil,
+    otherAnimationType: UIExecuteAnimationType? = nil,
     otherDynamicColors: SwitchDynamicColors? = nil,
     otherStaticColors: SwitchStaticColors? = nil,
     otherContentRadius: CGFloat? = nil,
     otherDim: CGFloat? = nil,
-    otherTitleFont: Font? = nil,
     otherIsIcon: Bool? = nil,
-    otherSpacing: CGFloat? = nil
+    otherShowSpace: SwitchSpace? = nil,
+    otherSpacing: CGFloat? = nil,
+    otherTitleFont: UIFont? = nil
 ) {
     let viewModel = stub.viewModel
 
+    if let otherIsOn {
+        XCTAssertEqual(
+            viewModel.isOn,
+            otherIsOn,
+            "Wrong isOn value"
+        )
+    }
+
+    XCTAssertEqual(
+        viewModel.animationType,
+        otherAnimationType ?? stub.expectedAnimationType,
+        "Wrong animationType value"
+    )
     XCTAssertEqual(
         viewModel.dynamicColors,
         otherDynamicColors ?? stub.expectedDynamicColors,
@@ -581,18 +782,23 @@ private func XCTAssertEqualToExpected(
         "Wrong dim value"
     )
     XCTAssertEqual(
-        viewModel.titleFont,
-        otherTitleFont ?? stub.expectedTitleFont,
-        "Wrong font value"
-    )
-    XCTAssertEqual(
         viewModel.isIcon,
         otherIsIcon ?? stub.expectedIsIcon,
         "Wrong isIcon value"
     )
     XCTAssertEqual(
+        viewModel.showSpace,
+        otherShowSpace ?? stub.expectedShowSpace,
+        "Wrong showSpace value"
+    )
+    XCTAssertEqual(
         viewModel.spacing,
         otherSpacing ?? stub.expectedSpacing,
         "Wrong spacing value"
+    )
+    XCTAssertEqual(
+        viewModel.titleFont,
+        otherTitleFont ?? stub.expectedTitleFont,
+        "Wrong font value"
     )
 }

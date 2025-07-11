@@ -8,13 +8,15 @@
 
 import SparkTheming
 
-// sourcery: AutoMockable
+// sourcery: AutoMockable, AutoMockTest
 protocol SwitchGetColorsUseCaseable {
     // sourcery: theme = "Identical"
     @available(*, deprecated, message: "Not used anymore by SwitchViewModel or SwitchUIViewModel.")
     func execute(theme: Theme) -> SwitchColors
 
+    // sourcery: theme = "Identical"
     func executeStatic(theme: Theme) -> SwitchStaticColors
+    // sourcery: theme = "Identical"
     func executeDynamic(theme: Theme, isOn: Bool) -> SwitchDynamicColors
 }
 
@@ -47,7 +49,7 @@ struct SwitchGetColorsUseCase: SwitchGetColorsUseCaseable {
             hoverColor: colors.basic.basicContainer
         )
     }
-    
+
     func executeDynamic(theme: Theme, isOn: Bool) -> SwitchDynamicColors {
         let color = theme.colors.basic.basic
         return .init(

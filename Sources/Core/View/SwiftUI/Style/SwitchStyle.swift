@@ -22,6 +22,7 @@ struct SwitchStyle: ToggleStyle {
     private let offIcon: Image
 
     @Environment(\.isEnabled) private var isEnabled
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State var isPressed: Bool = false
 
@@ -36,77 +37,82 @@ struct SwitchStyle: ToggleStyle {
     // MARK: - Body
 
     func makeBody(configuration: Configuration) -> some View {
-        ScaledHStack(alignment: .top, spacing: self.viewModel.spacing) {
+            ScaledHStack(alignment: .top, spacing: self.viewModel.spacing) {
 
-            ZStack(alignment: .center) {
-                configuration.label
-                    .lineLimit(1)
-                    .frame(width: ToggleConstants.width, alignment: .top)
-                    .accessibilityHidden(true)
-                    .hidden()
+                ZStack(alignment: .center) {
+                    configuration.label
+                        .lineLimit(1)
+                        .frame(width: ToggleConstants.width, alignment: .top)
+                        .accessibilityHidden(true)
+                        .hidden()
 
-                // Toggle
-                Button {
-                    configuration.isOn.toggle()
-                } label: {
-                    RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
-                        .fill(self.viewModel.dynamicColors.backgroundColors)
-                        .overlay {
-                            ZStack {
-                                HStack(alignment: .center, spacing: 0) {
-                                    if configuration.isOn {
-                                        Spacer()
-                                    }
-
-                                    RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
-                                        .fill(self.viewModel.staticColors.dotBackgroundColor)
-                                        .padding(ToggleConstants.padding)
-                                        .frame(
-                                            width: self.isPressed ? ToggleConstants.dotPressedSize : ToggleConstants.dotSize
-                                        )
-                                        .overlay {
-                                            if self.viewModel.isIcon {
-                                                self.icon(configuration: configuration)
-                                                    .resizable()
-                                                    .aspectRatio(contentMode: .fit)
-                                                    .foregroundStyle(self.viewModel.dynamicColors.dotForegroundColors)
-                                                    .frame(size: ToggleConstants.dotIconSize)
-                                            }
+                    // Toggle
+                    Button {
+                        configuration.isOn.toggle()
+                    } label: {
+                        RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
+                            .fill(self.viewModel.dynamicColors.backgroundColors)
+                            .overlay {
+                                ZStack {
+                                    HStack(alignment: .center, spacing: 0) {
+                                        if configuration.isOn {
+                                            Spacer()
                                         }
 
-                                    if !configuration.isOn {
-                                        Spacer()
+                                        RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
+                                            .fill(self.viewModel.staticColors.dotBackgroundColor)
+                                            .padding(ToggleConstants.padding)
+                                            .frame(
+                                                width: self.canChangeDotSize() ? ToggleConstants.dotPressedSize : ToggleConstants.dotSize
+                                            )
+                                            .overlay {
+                                                if self.viewModel.isIcon {
+                                                    self.icon(configuration: configuration)
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fit)
+                                                        .foregroundStyle(self.viewModel.dynamicColors.dotForegroundColors)
+                                                        .frame(size: ToggleConstants.dotIconSize)
+                                                }
+                                            }
+
+                                        if !configuration.isOn {
+                                            Spacer()
+                                        }
                                     }
                                 }
                             }
-                        }
-                        .opacity(self.viewModel.dim)
-                        .frame(
-                            width: ToggleConstants.width,
-                            height: ToggleConstants.height
-                        )
-                        .overlay(
-                            self.pressedView()
-                        )
+                            .opacity(self.viewModel.dim)
+                            .frame(
+                                width: ToggleConstants.width,
+                                height: ToggleConstants.height
+                            )
+                            .transaction {
+                                if self.reduceMotion {
+                                    $0.animation = nil
+                                }
+                            }
+                            .overlay(
+                                self.pressedView()
+                            )
+                    }
+                    .buttonPressedStyle(self.$isPressed)
+                    .sensoryFeedback(trigger: configuration.isOn)
+                    .optionalAnimation(
+                        .easeInOut(duration: SwitchConstants.animationDuration),
+                        value: self.isPressed
+                    )
+                    .optionalAnimation(
+                        .easeOut(duration: SwitchConstants.animationDuration),
+                        value: configuration.isOn
+                    )
                 }
-                .buttonPressedStyle(self.$isPressed)
-                .sensoryFeedback(trigger: configuration.isOn)
-                .optionalAnimation(
-                    .easeInOut(duration: SwitchConstants.animationDuration),
-                    value: self.isPressed
-                )
-                .optionalAnimation(
-                    .easeOut(duration: SwitchConstants.animationDuration),
-                    value: configuration.isOn
-                )
-            }
 
-            // Title
-            configuration.label
-                .font(self.viewModel.titleFont)
-                .foregroundStyle(self.viewModel.staticColors.textForegroundColor)
-                .frame(minHeight: ToggleConstants.height)
-        }
+                // Title
+                configuration.label
+                    .font(self.viewModel.titleFont)
+                    .foregroundStyle(self.viewModel.staticColors.textForegroundColor)
+                    .frame(minHeight: ToggleConstants.height)
+            }
     }
 
     // MARK: - Subview
@@ -128,6 +134,12 @@ struct SwitchStyle: ToggleStyle {
             EmptyView()
         }
     }
+
+    // MARK: - Getter
+
+    private func canChangeDotSize() -> Bool {
+        self.isPressed && !self.reduceMotion
+    }
 }
 
 // MARK: - Extension
@@ -148,7 +160,7 @@ private extension View {
     }
 
     @ViewBuilder
-    func sensoryFeedback<T>(trigger: T) -> some View where T : Equatable {
+    func sensoryFeedback<T>(trigger: T) -> some View where T: Equatable {
         if #available(iOS 17.0, *) {
             self.sensoryFeedback(.impact, trigger: trigger)
         } else {
@@ -158,10 +170,6 @@ private extension View {
 
     @ViewBuilder
     func buttonPressedStyle(_ value: Binding<Bool>) -> some View {
-        if UIAccessibility.isReduceMotionEnabled {
-            self
-        } else {
-            self.buttonStyle(PressedButtonStyle(isPressed: value))
-        }
+        self.buttonStyle(PressedButtonStyle(isPressed: value))
     }
 }

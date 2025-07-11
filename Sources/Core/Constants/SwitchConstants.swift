@@ -27,6 +27,8 @@ enum SwitchConstants {
         static let dotSize: CGFloat = Self.height
         /// Toggle size
         static let dotPressedSize: CGFloat = Self.width * 0.75
+        /// Toggle size
+        static let dotIncreasePressedSize: CGFloat = 10
         /// Toggle padding
         static let padding: CGFloat = 4 // TODO: deprecated ?
         /// Dot size

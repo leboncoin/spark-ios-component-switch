@@ -12,16 +12,41 @@ import SwiftUI
 @_spi(SI_SPI) import SparkCommon
 import SparkTheming
 
-// TODO: Add Action
-// TODO: Add Target
-// TODO: Haptic
-// TODO: High Contrast
-// TODO: OnOffLabels
-// TODO: Add Pressed state (rounded rect)
-
-// TODO: Comment
-// TODO: Example
-// TODO: Snapshots
+/// A Spark control that offers a binary choice, such as on/off.
+///
+/// This component inherits from **UIControl**.
+///
+/// Initialization :
+/// ```swift
+/// let theme: SparkTheming.Theme = MyTheme()
+///
+/// let mySwitch = SparkUISwitch(
+///     theme: self.theme,
+///     onIcon: .init(systemName: "checkmark")!,
+///     offIcon: .init(systemName: "xmark")!
+/// )
+/// ```
+///
+/// Toggle when isOn is **true** :
+/// ![Toggle rendering.](component.png)
+///
+/// Toggle when isOn is **false**:
+/// ![Toggle rendering.](component_disabled.png)
+///
+/// To add a text, you must provide a **text** or a **attributedText**:
+/// ```swift
+/// let theme: SparkTheming.Theme = MyTheme()
+///
+/// let mySwitch = SparkUISwitch(
+///     theme: self.theme,
+///     onIcon: .init(systemName: "checkmark")!,
+///     offIcon: .init(systemName: "xmark")!
+/// )
+/// mySwitch.text = "My switch"
+/// ```
+/// ![Toggle rendering with a text.](component_with_title.png)
+///
+/// ![Toggle rendering with a multiline text.](component_with_mutliline.png)
 public final class SparkUISwitch: UIControl {
 
     // MARK: - Type alias
@@ -66,11 +91,6 @@ public final class SparkUISwitch: UIControl {
 
     private lazy var toggleView: UIView = {
         let view = UIView()
-        view.accessibilityTraits = [.button]
-        if #available(iOS 17.0, *) {
-            view.accessibilityTraits.insert(.toggleButton)
-        }
-        view.isAccessibilityElement = true
         view.accessibilityIdentifier = AccessibilityIdentifier.toggleView
         view.addSubview(self.toggleContentStackView)
         view.isUserInteractionEnabled = true
@@ -78,6 +98,7 @@ public final class SparkUISwitch: UIControl {
                                                      for: .vertical)
         view.setContentCompressionResistancePriority(.required,
                                                      for: .horizontal)
+        view.isAccessibilityElement = true
         return view
     }()
 
@@ -92,6 +113,7 @@ public final class SparkUISwitch: UIControl {
         )
         stackView.axis = .horizontal
         stackView.isUserInteractionEnabled = false
+        stackView.accessibilityElementsHidden = true
         return stackView
     }()
 
@@ -132,6 +154,7 @@ public final class SparkUISwitch: UIControl {
         label.setContentCompressionResistancePriority(.required,
                                                       for: .vertical)
         label.isUserInteractionEnabled = false
+        label.isAccessibilityElement = false
         return label
     }()
 
@@ -152,12 +175,20 @@ public final class SparkUISwitch: UIControl {
     }
 
     /// The value of the switch (retrieve and set without animation).
+    ///
+    ///
+    /// Toggle when isOn is **true** :
+    /// ![Toggle rendering.](component.png)
+    ///
+    /// Toggle when isOn is **false**:
+    /// ![Toggle rendering.](component_disabled.png)
     public var isOn: Bool {
         get {
             return self.viewModel.isOn
         }
         set {
             self.viewModel.setIsOn(newValue)
+            self.updateAccessibilityValue()
         }
     }
 
@@ -167,9 +198,12 @@ public final class SparkUISwitch: UIControl {
             return self.textLabel.text
         }
         set {
+            self.textLabel.isHidden = newValue == nil
             self.textLabel.text = newValue
             self.toggleHidenLabel.text = newValue
             self.invalidateIntrinsicContentSize()
+
+            self.toggleView.accessibilityLabel = newValue
         }
     }
 
@@ -179,20 +213,25 @@ public final class SparkUISwitch: UIControl {
             return self.textLabel.attributedText
         }
         set {
+            self.textLabel.isHidden = newValue == nil
             self.textLabel.attributedText = newValue
             self.toggleHidenLabel.attributedText = newValue
             self.invalidateIntrinsicContentSize()
+
+            self.toggleView.accessibilityLabel = newValue?.string
         }
     }
 
-    /// The state of the switch: enabled or not (retrieve and set without animation). .
+    /// The state of the switch: enabled or not.
+    /// ![Toggle rendering with when it's disabled.](component_disabled.png)
     public override var isEnabled: Bool {
         get {
             return self.viewModel.isEnabled
         }
         set {
             self.viewModel.isEnabled = newValue
-            self.updateToggleViewState()
+            self.toggleView.isUserInteractionEnabled = self.isEnabled
+            self.updateAccessibilityEnabledTrait()
         }
     }
 
@@ -208,6 +247,7 @@ public final class SparkUISwitch: UIControl {
     private var toggleContentTrailingConstraint: NSLayoutConstraint?
     private var toggleContentBottomConstraint: NSLayoutConstraint?
 
+    private var toggleDotWidthConstraint: NSLayoutConstraint?
     private var toggleDotLeadingConstraint: NSLayoutConstraint?
     private var toggleDotTopConstraint: NSLayoutConstraint?
     private var toggleDotTrailingConstraint: NSLayoutConstraint?
@@ -225,13 +265,35 @@ public final class SparkUISwitch: UIControl {
         UIAccessibility.isReduceMotionEnabled
     }
 
+    private var hoverToggleLayer: CAShapeLayer?
+
     private var subscriptions = Set<AnyCancellable>()
 
     // MARK: - Initialization
 
-    // TODO: Comment
-    // TODO: Example
-    // TODO: Snapshots
+    /// Creates a Spark switch.
+    ///
+    /// Note : You must provide an *accessibilityLabel* !
+    ///
+    /// - Parameters:
+    ///   - theme: The current theme.
+    ///   - onIcon: The on icon. Displayed when the *UIAccessibility.isOnOffSwitchLabelsEnabled*
+    ///   is **true** and the toogle is **on**.
+    ///   - offIcon: The offIcon icon. Displayed when the *UIAccessibility.isOnOffSwitchLabelsEnabled*
+    ///   is **true** and the toogle is **off**.
+    ///
+    /// Implementation example :
+    /// ```swift
+    /// let theme: SparkTheming.Theme = MyTheme()
+    ///
+    /// let mySwitch = SparkUISwitch(
+    ///     theme: self.theme,
+    ///     onIcon: .init(systemName: "checkmark")!,
+    ///     offIcon: .init(systemName: "xmark")!
+    /// )
+    /// ```
+    ///
+    /// ![Toggle rendering.](component.png)
     public init(
         theme: Theme,
         onIcon: UIImage,
@@ -253,8 +315,6 @@ public final class SparkUISwitch: UIControl {
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     deinit {
-        print("LOGROB Deinit Switch")
-
         // Remove notifications
         NotificationCenter.default.removeObserver(
             self,
@@ -289,14 +349,20 @@ public final class SparkUISwitch: UIControl {
         // Setup Notification
         self.setupNotifications()
 
+        // Setup Accessibility
+        self.setupAccessibility()
+
         // Updates
-        self.setupAccessibilityValue(isOn: self.isOn)
         self.updateToggleContentViewSpacings()
         self.updateToggleViewSize()
         self.updateToggleDotImageViewSpacings()
 
         // Load view model
-        self.viewModel.load()
+        self.viewModel.load(
+            isOnOffSwitchLabelsEnabled: UIAccessibility.isOnOffSwitchLabelsEnabled,
+            isReduceMotionEnabled: UIAccessibility.isReduceMotionEnabled,
+            contrast: self.traitCollection.accessibilityContrast
+        )
     }
 
     // MARK: - Layout
@@ -341,32 +407,12 @@ public final class SparkUISwitch: UIControl {
         super.invalidateIntrinsicContentSize()
     }
 
-    // MARK: - Accessibility
-
-    private func setupAccessibilityValue(isOn: Bool) {
-//        self.toggleView.accessibilityValue = isOn ? "1" : "0"
-    }
-
     // MARK: - Gesture
 
     private func setupGesturesRecognizer() {
-        self.setupToggleTapGestureRecognizer()
-        self.setupToggleSwipeGestureRecognizer()
-    }
-
-    private func setupToggleTapGestureRecognizer() {
-        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.toggleTapGestureAction))
+        let gestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.toggleLongGestureAction))
+        gestureRecognizer.minimumPressDuration = 0
         self.toggleView.addGestureRecognizer(gestureRecognizer)
-    }
-
-    private func setupToggleSwipeGestureRecognizer() {
-        let rightGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(self.toggleSwipeGestureAction))
-        rightGestureRecognizer.direction = .right
-        self.toggleView.addGestureRecognizer(rightGestureRecognizer)
-
-        let leftGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(self.toggleSwipeGestureAction))
-        leftGestureRecognizer.direction = .left
-        self.toggleView.addGestureRecognizer(leftGestureRecognizer)
     }
 
     // MARK: - Constraints
@@ -447,7 +493,9 @@ public final class SparkUISwitch: UIControl {
 
     private func setupToggleDotViewConstraints() {
         self.toggleDotView.translatesAutoresizingMaskIntoConstraints = false
-        self.toggleDotView.widthAnchor.constraint(equalTo: self.toggleDotView.heightAnchor).isActive = true
+
+        self.toggleDotWidthConstraint = self.toggleDotView.widthAnchor.constraint(equalTo: self.toggleDotView.heightAnchor)
+        self.toggleDotWidthConstraint?.isActive = true
     }
 
     private func setupToggleDotImageViewConstraints() {
@@ -494,32 +542,51 @@ public final class SparkUISwitch: UIControl {
             isOn,
             animated: animated
         )
+
+        self.updateAccessibilityValue()
     }
 
     // MARK: - Actions
 
-    @objc private func toggleTapGestureAction(_ sender: UITapGestureRecognizer) {
-        self.toggle()
-    }
+    @objc private func toggleLongGestureAction(_ sender: UILongPressGestureRecognizer) {
+        switch sender.state {
+        case .began where !self.isReduceMotionEnabled:
+            UIView.execute(animationType: self.viewModel.animationType) { [weak self] in
+                guard let self else { return }
 
-    @objc private func toggleSwipeGestureAction(_ sender: UISwipeGestureRecognizer) {
-        switch sender.direction {
-        case .left where self.isOn, .right where !self.isOn:
+                self.toggleDotWidthConstraint?.constant = Constants.ToggleSizes.dotIncreasePressedSize
+                self.updateHover(show: true)
+                self.layoutIfNeeded()
+
+            }
+
+        case .ended:
             self.toggle()
-        default:
-            break
+
+            UIView.execute(animationType: self.viewModel.animationType) { [weak self] in
+                guard let self else { return }
+
+                self.toggleDotWidthConstraint?.constant = 0
+                self.updateHover(show: false)
+                self.layoutIfNeeded()
+            }
+
+        default: break
         }
     }
 
     private func toggle() {
         self.viewModel.toggle()
 
+        // Accessibility
+        self.updateAccessibilityValue()
+
         // Action
         self.sendActions(for: .valueChanged)
-        self.isOnChangedSubject.send(isOn)
+        self.isOnChangedSubject.send(self.isOn)
 
         // Haptic
-        let generator = UIImpactFeedbackGenerator(style: .medium)
+        let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
     }
 
@@ -544,15 +611,6 @@ public final class SparkUISwitch: UIControl {
 
             self.toggleContentStackView.updateConstraintsIfNeeded()
             self.invalidateIntrinsicContentSize()
-        }
-    }
-
-    private func updateToggleViewState() {
-        self.toggleView.isUserInteractionEnabled = self.isEnabled
-        if !isEnabled {
-            self.toggleView.accessibilityTraits.insert(.notEnabled)
-        } else {
-            self.toggleView.accessibilityTraits.remove(.notEnabled)
         }
     }
 
@@ -597,6 +655,59 @@ public final class SparkUISwitch: UIControl {
         self.toggleDotView.setCornerRadius(value ?? self.viewModel.contentRadius)
     }
 
+    private func updateHover(show: Bool) {
+        if show {
+            let width = Constants.ToggleSizes.hoverPadding
+            let inset = -width / 2
+
+            let path = UIBezierPath(
+                roundedRect: self.toggleView.bounds.insetBy(dx: inset, dy: inset),
+                byRoundingCorners: [.topLeft, .bottomLeft, .topRight, .bottomRight],
+                cornerRadii: CGSize(width: self.toggleView.frame.size.height / 2, height: self.toggleView.frame.size.height / 2)
+            )
+
+            let shape = CAShapeLayer()
+            shape.lineWidth = width
+            shape.path = path.cgPath
+            shape.strokeColor = self.viewModel.staticColors.hoverColor.uiColor.cgColor
+            shape.fillColor = UIColor.clear.cgColor
+
+            self.toggleView.layer.insertSublayer(shape, at: 0)
+            self.hoverToggleLayer = shape
+
+        } else if let hoverToggleLayer {
+            hoverToggleLayer.removeFromSuperlayer()
+        }
+    }
+
+    // MARK: - Accessibility
+
+    private func setupAccessibility() {
+        self.toggleView.accessibilityTraits.insert(.button)
+        if #available(iOS 17.0, *) {
+            self.toggleView.accessibilityTraits.insert(.toggleButton)
+        }
+
+        self.updateAccessibility()
+    }
+
+    private func updateAccessibility() {
+        self.updateAccessibilityValue()
+        self.updateAccessibilityEnabledTrait()
+    }
+
+    private func updateAccessibilityValue() {
+        self.toggleView.accessibilityValue = self.isOn ? "1" : "0"
+    }
+
+    private func updateAccessibilityEnabledTrait() {
+        if self.isEnabled {
+            self.toggleView.accessibilityTraits.remove(.notEnabled)
+        } else {
+            self.toggleView.accessibilityTraits.insert(.notEnabled)
+        }
+    }
+
     // MARK: - Subscribe
 
     private func setupSubscriptions() {
@@ -605,7 +716,6 @@ public final class SparkUISwitch: UIControl {
         self.viewModel.$staticColors.subscribe(in: &self.subscriptions) { [weak self] staticColors in
             guard let self else { return }
 
-            // staticColors.hoverColor // TODO:
             self.toggleDotView.backgroundColor = staticColors.dotBackgroundColor.uiColor
             self.textLabel.textColor = staticColors.textForegroundColor.uiColor
         }
@@ -616,7 +726,7 @@ public final class SparkUISwitch: UIControl {
         self.viewModel.$dynamicColors.subscribe(in: &self.subscriptions) { [weak self] dynamicColors in
             guard let self else { return }
 
-            UIView.execute(animationType: self.viewModel.animationType()) { [weak self] in
+            UIView.execute(animationType: self.viewModel.animationType) { [weak self] in
                 self?.toggleView.backgroundColor = dynamicColors.backgroundColors.uiColor
                 self?.toggleDotImageView.tintColor = dynamicColors.dotForegroundColors.uiColor
             }
@@ -660,7 +770,7 @@ public final class SparkUISwitch: UIControl {
 
                 UIView.execute(
                     with: self.toggleDotImageView,
-                    animationType: self.viewModel.animationType(),
+                    animationType: self.viewModel.animationType,
                     options: .transitionCrossDissolve,
                     instructions: { [weak self] in
                         self?.toggleDotImageView.image = image
@@ -699,7 +809,7 @@ public final class SparkUISwitch: UIControl {
             let currentUserInteraction = self.toggleView.isUserInteractionEnabled
             self.toggleView.isUserInteractionEnabled = false
 
-            UIView.execute(animationType: self.viewModel.animationType()) { [weak self] in
+            UIView.execute(animationType: self.viewModel.animationType) { [weak self] in
                 self?.toggleLeftSpaceView.isHidden = !showSpace.showLeft
                 self?.toggleRightSpaceView.isHidden = !showSpace.showRight
             } completion: { [weak self] _ in
