@@ -1485,10 +1485,10 @@ private final class Stub {
     let isOnChangedPublisherMock: PublisherMock<Published<Bool?>.Publisher>
     let isToggleInteractionEnabledPublisherMock: PublisherMock<Published<Bool?>.Publisher>
     let toggleOpacityPublisherMock: PublisherMock<Published<CGFloat?>.Publisher>
-    let toggleBackgroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
-    let toggleDotBackgroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
-    let toggleDotForegroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
-    let textForegroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
+    let toggleBackgroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
+    let toggleDotBackgroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
+    let toggleDotForegroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
+    let textForegroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
     let isToggleOnLeftPublisherMock: PublisherMock<Published<Bool?>.Publisher>
     let horizontalSpacingPublisherMock: PublisherMock<Published<CGFloat?>.Publisher>
     let showToggleLeftSpacePublisherMock: PublisherMock<Published<Bool?>.Publisher>

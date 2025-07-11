@@ -7,6 +7,7 @@ DerivedData/
 .swiftpm/
 *Generated/
 Package.resolved
+Tests/SnapshotTests/.__snapshots__/*/documentation*.png
 
 
 # SwiftLint Remote Config Cache
