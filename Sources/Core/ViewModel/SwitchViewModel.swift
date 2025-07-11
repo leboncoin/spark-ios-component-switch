@@ -2,274 +2,194 @@
 //  SwitchViewModel.swift
 //  SparkSwitch
 //
-//  Created by robin.lemaire on 23/05/2023.
-//  Copyright © 2023 Leboncoin. All rights reserved.
+//  Created by robin.lemaire on 02/07/2025.
+//  Copyright © 2025 Leboncoin. All rights reserved.
 //
 
 import SwiftUI
 @_spi(SI_SPI) import SparkCommon
 import SparkTheming
 
-final class SwitchViewModel: ObservableObject {
-
-    // MARK: - Properties
-
-    private(set) var isOn: Bool
-
-    private let frameworkType: FrameworkType
-    private(set) var theme: Theme
-    private(set) var alignment: SwitchAlignment
-    private(set) var intent: SwitchIntent
-    private(set) var isEnabled: Bool
-    private(set) var images: SwitchImagesEither?
+/// ViewModel only used by **SwiftUI** View.
+// sourcery: AutoPublisherTest, AutoViewModelStub
+internal class SwitchViewModel: ObservableObject {
 
     // MARK: - Published Properties
 
-    @Published var isOnChanged: Bool?
+    @Published private(set) var dynamicColors = SwitchDynamicColors()
+    @Published private(set) var staticColors = SwitchStaticColors()
+    @Published private(set) var contentRadius: CGFloat = 0
+    @Published private(set) var dim: CGFloat = 1
+    @Published private(set) var titleFont: Font = .body
+    @Published private(set) var isIcon: Bool = false
+    @Published private(set) var spacing: CGFloat = 0
 
-    @Published private (set) var isToggleInteractionEnabled: Bool?
-    @Published private (set) var toggleOpacity: CGFloat?
+    // MARK: - Properties
 
-    @Published private (set) var toggleBackgroundColorToken: (any ColorToken)?
-    @Published private (set) var toggleDotBackgroundColorToken: (any ColorToken)?
-    @Published private (set) var toggleDotForegroundColorToken: (any ColorToken)?
-    @Published private (set) var textForegroundColorToken: (any ColorToken)?
+    private var alreadyUpdateAll = false
 
-    @Published private (set) var isToggleOnLeft: Bool?
-    @Published private (set) var horizontalSpacing: CGFloat?
+    var theme: (any Theme)? {
+        didSet {
+            guard self.alreadyUpdateAll else { return }
 
-    @Published private (set) var showToggleLeftSpace: Bool?
+            self.setDynamicColors()
+            self.setStaticColors()
+            self.setContentRadius()
+            self.setDim()
+            self.setFont()
+            self.setSpacing()
+        }
+    }
 
-    @Published private (set) var toggleDotImagesState: SwitchImagesState?
+    var isOn: Bool? {
+        didSet {
+            guard oldValue != self.isOn, self.alreadyUpdateAll else { return }
 
-    @Published private (set) var displayedText: DisplayedText?
-    @Published private (set) var textFontToken: TypographyFontToken?
+            self.setDynamicColors()
+        }
+    }
 
-    // MARK: - Private Properties
+    var isOnOffSwitchLabelsEnabled: Bool? {
+        didSet {
+            guard oldValue != self.isOnOffSwitchLabelsEnabled, self.alreadyUpdateAll else { return }
 
-    private var colors: SwitchColors?
-    private let displayedTextViewModel: DisplayedTextViewModel
+            self.setIsIcon()
+        }
+    }
 
-    private let dependencies: any SwitchViewModelDependenciesProtocol
+    var contrast: ColorSchemeContrast? {
+        didSet {
+            guard oldValue != self.contrast, self.alreadyUpdateAll else { return }
+
+            self.setIsIcon()
+        }
+    }
+
+    var isEnabled: Bool? {
+        didSet {
+            guard oldValue != self.isEnabled, self.alreadyUpdateAll else { return }
+
+            self.setDim()
+        }
+    }
+
+    // MARK: - Use Case Properties
+
+    private let getColorsUseCase: SwitchGetColorsUseCaseable
+    private let getContentRadiusUseCase: SwitchGetContentRadiusUseCaseable
+    private let getDimUseCase: SwitchGetDimUseCaseable
+    private let getTitleFontUseCase: SwitchGetTitleFontUseCaseable
+    private let getIsIconUseCase: SwitchGetIsIconUseCaseable
+    private let getSpacingUseCase: SwitchGetSpacingUseCaseable
 
     // MARK: - Initialization
 
     init(
-        for frameworkType: FrameworkType,
+        getColorsUseCase: SwitchGetColorsUseCaseable = SwitchGetColorsUseCase(),
+        getContentRadiusUseCase: SwitchGetContentRadiusUseCaseable = SwitchGetContentRadiusUseCase(),
+        getDimUseCase: SwitchGetDimUseCaseable = SwitchGetDimUseCase(),
+        getTitleFontUseCase: SwitchGetTitleFontUseCaseable = SwitchGetTitleFontUseCase(),
+        getIsIconUseCase: SwitchGetIsIconUseCaseable = SwitchGetIsIconUseCase(),
+        getSpacingUseCase: SwitchGetSpacingUseCaseable = SwitchGetSpacingUseCase()
+    ) {
+        self.getColorsUseCase = getColorsUseCase
+        self.getContentRadiusUseCase = getContentRadiusUseCase
+        self.getDimUseCase = getDimUseCase
+        self.getTitleFontUseCase = getTitleFontUseCase
+        self.getIsIconUseCase = getIsIconUseCase
+        self.getSpacingUseCase = getSpacingUseCase
+    }
+
+    // MARK: - Setup
+
+    func setup(
         theme: Theme,
         isOn: Bool,
-        alignment: SwitchAlignment,
-        intent: SwitchIntent,
-        isEnabled: Bool,
-        images: SwitchImagesEither?,
-        text: String?,
-        attributedText: AttributedStringEither?,
-        dependencies: any SwitchViewModelDependenciesProtocol = SwitchViewModelDependencies()
+        isOnOffSwitchLabelsEnabled: Bool,
+        contrast: ColorSchemeContrast,
+        isEnabled: Bool
     ) {
+        self.theme = theme
         self.isOn = isOn
-        self.frameworkType = frameworkType
-
-        self.theme = theme
-        self.alignment = alignment
-        self.intent = intent
+        self.isOnOffSwitchLabelsEnabled = isOnOffSwitchLabelsEnabled
+        self.contrast = contrast
         self.isEnabled = isEnabled
-        self.images = images
-        self.displayedTextViewModel = dependencies.makeDisplayedTextViewModel(
-            text: text,
-            attributedText: attributedText
-        )
 
-        self.dependencies = dependencies
+        self.setDynamicColors()
+        self.setStaticColors()
+        self.setContentRadius()
+        self.setDim()
+        self.setFont()
+        self.setIsIcon()
+        self.setSpacing()
 
-        // Load the values directly on init just for SwiftUI
-        if frameworkType == .swiftUI {
-            self.updateAll()
-        }
+        self.alreadyUpdateAll = true
     }
 
-    // MARK: - Load
+    // MARK: - Private Setter
 
-    func load() {
-        // Update all values when UIKit view is ready to receive published values
-        if self.frameworkType == .uiKit {
-            self.updateAll()
-        }
-    }
-
-    // MARK: - Action
-
-    func toggle() {
-        // Update content only if user interaction is enabled
-        if self.isToggleInteractionEnabled ?? false {
-            self.isOn.toggle()
-
-            // Manual action: update isOnChanged value
-            self.isOnChanged = self.isOn
-
-            self.colorsDidUpdate()
-            self.toggleStateDidUpdate()
-            self.toggleDotImageDidUpdate()
-            self.toggleSpacesVisibilityDidUpdate()
-        }
-    }
-
-    // MARK: - Setter
-
-    func set(isOn: Bool) {
-        if self.isOn != isOn {
-            self.isOn = isOn
-
-            self.colorsDidUpdate()
-            self.toggleDotImageDidUpdate()
-            self.toggleSpacesVisibilityDidUpdate()
-        }
-    }
-
-    func set(theme: Theme) {
-        self.theme = theme
-
-        self.updateAll()
-    }
-
-    func set(alignment: SwitchAlignment) {
-        if self.alignment != alignment {
-            self.alignment = alignment
-
-            self.alignmentDidUpdate()
-        }
-    }
-
-    func set(intent: SwitchIntent) {
-        if self.intent != intent {
-            self.intent = intent
-
-            self.colorsDidUpdate(reloadColorsFromUseCase: true)
-        }
-    }
-
-    func set(isEnabled: Bool) {
-        if self.isEnabled != isEnabled {
-            self.isEnabled = isEnabled
-
-            self.colorsDidUpdate()
-            self.toggleStateDidUpdate()
-        }
-    }
-
-    func set(images: SwitchImagesEither?) {
-        if self.images != images {
-            self.images = images
-
-            self.toggleDotImageDidUpdate()
-        }
-    }
-
-    func set(text: String?) {
-        // Reload text properties (font and color) if consumer set a new text
-        if self.displayedTextViewModel.textChanged(text) {
-            self.displayTextDidUpdate()
-            self.alignmentDidUpdate()
-
-            if text != nil {
-                self.textFontDidUpdate()
-                self.textForegroundColorTokenDidUpdate()
-            }
-        }
-    }
-
-    func set(attributedText: AttributedStringEither?) {
-        if self.displayedTextViewModel.attributedTextChanged(attributedText) {
-            self.displayTextDidUpdate()
-            self.alignmentDidUpdate()
-        }
-    }
-
-    // MARK: - Private Update
-
-    private func updateAll() {
-        self.colorsDidUpdate(reloadColorsFromUseCase: true)
-        self.alignmentDidUpdate()
-        self.toggleStateDidUpdate()
-        self.toggleDotImageDidUpdate()
-        self.toggleSpacesVisibilityDidUpdate()
-        self.displayTextDidUpdate()
-        self.textFontDidUpdate()
-    }
-
-    private func colorsDidUpdate(reloadColorsFromUseCase: Bool = false) {
-        if reloadColorsFromUseCase {
-            self.colors = self.dependencies.getColorsUseCase.execute(
-                intent: self.intent,
-                colors: self.theme.colors,
-                dims: self.theme.dims
-            )
-        }
-
-        guard let colors = self.colors else {
+    private func setDynamicColors() {
+        guard let theme, let isOn else {
             return
         }
 
-        self.toggleBackgroundColorToken = self.dependencies.getToggleColorUseCase.execute(
-            isOn: self.isOn,
-            statusAndStateColor: colors.toggleBackgroundColors
+        self.dynamicColors = self.getColorsUseCase.executeDynamic(
+            theme: theme,
+            isOn: isOn
         )
-        self.toggleDotBackgroundColorToken = colors.toggleDotBackgroundColor
-        self.toggleDotForegroundColorToken = self.dependencies.getToggleColorUseCase.execute(
-            isOn: self.isOn,
-            statusAndStateColor: colors.toggleDotForegroundColors
-        )
-        self.textForegroundColorTokenDidUpdate()
     }
 
-    private func textForegroundColorTokenDidUpdate() {
-        guard let colors = self.colors else {
+    private func setStaticColors() {
+        guard let theme else {
             return
         }
 
-        self.textForegroundColorToken = colors.textForegroundColor
+        self.staticColors = self.getColorsUseCase.executeStatic(theme: theme)
     }
 
-    private func alignmentDidUpdate() {
-        let position = self.dependencies.getPositionUseCase.execute(
-            alignment: self.alignment,
-            spacing: self.theme.layout.spacing,
-            containsText: self.displayedTextViewModel.containsText
-        )
-
-        self.isToggleOnLeft = position.isToggleOnLeft
-        self.horizontalSpacing = position.horizontalSpacing
-    }
-
-    private func toggleStateDidUpdate() {
-        let interactionState = self.dependencies.getToggleStateUseCase.execute(
-            isEnabled: self.isEnabled,
-            dims: self.theme.dims
-        )
-
-        self.isToggleInteractionEnabled = interactionState.interactionEnabled
-        self.toggleOpacity = interactionState.opacity
-    }
-
-    private func toggleDotImageDidUpdate() {
-        if let images = self.images {
-            self.toggleDotImagesState = self.dependencies.getImagesStateUseCase.execute(
-                isOn: self.isOn,
-                images: images
-            )
-        } else {
-            self.toggleDotImagesState = nil
+    private func setContentRadius() {
+        guard let theme else {
+            return
         }
+
+        self.contentRadius = self.getContentRadiusUseCase.execute(theme: theme)
     }
 
-    private func toggleSpacesVisibilityDidUpdate() {
-        self.showToggleLeftSpace = self.isOn
+    private func setDim() {
+        guard let theme, let isEnabled else {
+            return
+        }
+
+        self.dim = self.getDimUseCase.execute(
+            theme: theme,
+            isEnabled: isEnabled
+        )
     }
 
-    private func displayTextDidUpdate() {
-        self.displayedText = self.displayedTextViewModel.displayedText
+    private func setFont() {
+        guard let theme else {
+            return
+        }
+
+        self.titleFont = self.getTitleFontUseCase.execute(theme: theme)
     }
 
-    private func textFontDidUpdate() {
-        self.textFontToken = self.theme.typography.body1
+    private func setIsIcon() {
+        guard let isOnOffSwitchLabelsEnabled, let contrast else {
+            return
+        }
+
+        self.isIcon = self.getIsIconUseCase.execute(
+            isOnOffSwitchLabelsEnabled: isOnOffSwitchLabelsEnabled,
+            contrast: contrast
+        )
+    }
+
+    private func setSpacing() {
+        guard let theme else {
+            return
+        }
+
+        self.spacing = self.getSpacingUseCase.execute(theme: theme)
     }
 }
