@@ -12,8 +12,6 @@ public enum SwitchAccessibilityIdentifier {
     // MARK: - Properties
 
     /// The toggle view accessibility identifier.
-    public static let view = "spark-switch"
-    /// The toggle view accessibility identifier.
     public static let toggleView = "spark-switch-toggleView"
     /// The toggle dot view accessibility identifier.
     public static let toggleDotView = "spark-switch-toggle-dotView"
