@@ -243,11 +243,16 @@ public struct SparkToggle<Label>: View where Label: View {
     ///
     ///     var body: some View {
     ///         SparkToggle(
-    ///             "My placeholder",
     ///             theme: self.theme,
     ///             isOn: self.$isOn,
     ///             onIcon: .init(systemName: "checkmark"),
-    ///             offIcon: .init(systemName: "xmark")
+    ///             offIcon: .init(systemName: "xmark"),
+    ///             label: {
+    ///                 VStack {
+    ///                     Text("Hello")
+    ///                     Text("World")
+    ///                 }
+    ///             }
     ///         )
     ///     }
     /// ```
