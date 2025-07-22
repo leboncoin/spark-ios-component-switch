@@ -37,82 +37,82 @@ struct SwitchStyle: ToggleStyle {
     // MARK: - Body
 
     func makeBody(configuration: Configuration) -> some View {
-            ScaledHStack(alignment: .top, spacing: self.viewModel.spacing) {
+        ScaledHStack(alignment: .top, spacing: self.viewModel.spacing) {
 
-                ZStack(alignment: .center) {
-                    configuration.label
-                        .lineLimit(1)
-                        .frame(width: ToggleConstants.width, alignment: .top)
-                        .accessibilityHidden(true)
-                        .hidden()
+            ZStack(alignment: .center) {
+                configuration.label
+                    .lineLimit(1)
+                    .frame(width: ToggleConstants.width, alignment: .top)
+                    .accessibilityHidden(true)
+                    .hidden()
 
-                    // Toggle
-                    Button {
-                        configuration.isOn.toggle()
-                    } label: {
-                        RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
-                            .fill(self.viewModel.dynamicColors.backgroundColors)
-                            .overlay {
-                                ZStack {
-                                    HStack(alignment: .center, spacing: 0) {
-                                        if configuration.isOn {
-                                            Spacer()
-                                        }
+                // Toggle
+                Button {
+                    configuration.isOn.toggle()
+                } label: {
+                    RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
+                        .fill(self.viewModel.dynamicColors.backgroundColors)
+                        .overlay {
+                            ZStack {
+                                HStack(alignment: .center, spacing: 0) {
+                                    if configuration.isOn {
+                                        Spacer()
+                                    }
 
-                                        RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
-                                            .fill(self.viewModel.staticColors.dotBackgroundColor)
-                                            .padding(ToggleConstants.padding)
-                                            .frame(
-                                                width: self.canChangeDotSize() ? ToggleConstants.dotPressedSize : ToggleConstants.dotSize
-                                            )
-                                            .overlay {
-                                                if self.viewModel.isIcon {
-                                                    self.icon(configuration: configuration)
-                                                        .resizable()
-                                                        .aspectRatio(contentMode: .fit)
-                                                        .foregroundStyle(self.viewModel.dynamicColors.dotForegroundColors)
-                                                        .frame(size: ToggleConstants.dotIconSize)
-                                                }
+                                    RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
+                                        .fill(self.viewModel.staticColors.dotBackgroundColor)
+                                        .padding(ToggleConstants.padding)
+                                        .frame(
+                                            width: self.canChangeDotSize() ? ToggleConstants.dotPressedSize : ToggleConstants.dotSize
+                                        )
+                                        .overlay {
+                                            if self.viewModel.isIcon {
+                                                self.icon(configuration: configuration)
+                                                    .resizable()
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .foregroundStyle(self.viewModel.dynamicColors.dotForegroundColors)
+                                                    .frame(size: ToggleConstants.dotIconSize)
                                             }
-
-                                        if !configuration.isOn {
-                                            Spacer()
                                         }
+
+                                    if !configuration.isOn {
+                                        Spacer()
                                     }
                                 }
                             }
-                            .opacity(self.viewModel.dim)
-                            .frame(
-                                width: ToggleConstants.width,
-                                height: ToggleConstants.height
-                            )
-                            .transaction {
-                                if self.reduceMotion {
-                                    $0.animation = nil
-                                }
+                        }
+                        .opacity(self.viewModel.dim)
+                        .frame(
+                            width: ToggleConstants.width,
+                            height: ToggleConstants.height
+                        )
+                        .transaction {
+                            if self.reduceMotion {
+                                $0.animation = nil
                             }
-                            .overlay(
-                                self.pressedView()
-                            )
-                    }
-                    .buttonPressedStyle(self.$isPressed)
-                    .sensoryFeedback(trigger: configuration.isOn)
-                    .optionalAnimation(
-                        .easeInOut(duration: SwitchConstants.animationDuration),
-                        value: self.isPressed
-                    )
-                    .optionalAnimation(
-                        .easeOut(duration: SwitchConstants.animationDuration),
-                        value: configuration.isOn
-                    )
+                        }
+                        .overlay(
+                            self.pressedView()
+                        )
                 }
-
-                // Title
-                configuration.label
-                    .font(self.viewModel.titleFont)
-                    .foregroundStyle(self.viewModel.staticColors.textForegroundColor)
-                    .frame(minHeight: ToggleConstants.height)
+                .buttonPressedStyle(self.$isPressed)
+                .sensoryFeedback(trigger: configuration.isOn)
+                .optionalAnimation(
+                    .easeInOut(duration: SwitchConstants.animationDuration),
+                    value: self.isPressed
+                )
+                .optionalAnimation(
+                    .easeOut(duration: SwitchConstants.animationDuration),
+                    value: configuration.isOn
+                )
             }
+
+            // Title
+            configuration.label
+                .font(self.viewModel.titleFont)
+                .foregroundStyle(self.viewModel.staticColors.textForegroundColor)
+                .frame(minHeight: ToggleConstants.height)
+        }
     }
 
     // MARK: - Subview
