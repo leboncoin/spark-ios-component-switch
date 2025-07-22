@@ -18,7 +18,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
     case test2
     case test3
     case test4
-    case test5
+    case documentation
 
     // MARK: - Type Alias
 
@@ -36,56 +36,30 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
             return self.test3()
         case .test4:
             return self.test4()
-        case .test5:
-            return self.test5()
+        case .documentation:
+            return self.documentation()
         }
+    }
+
+    // MARK: - Case Iterable
+
+    static func allCases(forDocumentation: Bool = false) -> [Self] {
+        forDocumentation ? [.documentation] : Self.allCases.filter { $0 != .documentation }
     }
 
     // MARK: - Scenarios
 
     /// Test 1
     ///
-    /// Description: To test all intents
+    /// Description: To test both values with all status
     ///
-    /// **Content:
-    /// - intents : all**
-    /// - value : activated
-    /// - status : enabled
-    /// - label alignement : right
-    /// - is Icon : true
+    /// Content:
+    /// - value : **all**
+    /// - status : all**
     /// - content resilience : short label
     /// - mode : light
     /// - a11y size : medium
     private func test1() -> [SwitchConfigurationSnapshotTests] {
-        let intents = SwitchIntent.allCases
-
-        return intents.map { intent in
-            return .init(
-                scenario: self,
-                intent: intent,
-                value: .activated,
-                status: .enabled,
-                alignment: .right,
-                isIcon: true,
-                content: .shortLabel
-            )
-        }
-    }
-
-    /// Test 2
-    ///
-    /// Description: To test both values with all status
-    ///
-    /// Content:
-    /// - intents : **basic
-    /// - value : **all**
-    /// - status : all**
-    /// - label alignement : right
-    /// - is Icon : true
-    /// - content resilience : short label
-    /// - mode : light
-    /// - a11y size : medium
-    private func test2() -> [SwitchConfigurationSnapshotTests] {
         let values = SwitchValue.allCases
         let statutes = SwitchStatus.allCases
 
@@ -93,111 +67,104 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
             statutes.map { status in
                 return .init(
                     scenario: self,
-                    intent: .basic,
                     value: value,
                     status: status,
-                    alignment: .right,
-                    isIcon: true,
                     content: .shortLabel
                 )
             }
         }
     }
 
-    /// Test 3
+    /// Test 2
     ///
-    /// Description: To test label alignement for different length of labels
+    /// Description: To test different length of labels
     ///
     /// Content:
-    /// - intents : basic
     /// - value : activated
     /// - status : enabled
-    /// - **label alignement : all**
-    /// - is Icon : true
     /// - **content resilience : all**
     /// - mode : light
     /// - a11y size : medium
-    private func test3() -> [SwitchConfigurationSnapshotTests] {
-        let alignments = SwitchAlignment.allCases
+    private func test2() -> [SwitchConfigurationSnapshotTests] {
         let contentResiliences = SwitchContentResilience.allCases
 
-        return alignments.flatMap { alignment in
-            contentResiliences.map { contentResilience in
-                return .init(
-                    scenario: self,
-                    intent: .basic,
-                    value: .activated,
-                    status: .enabled,
-                    alignment: alignment,
-                    isIcon: true,
-                    content: contentResilience
-                )
-            }
+        return contentResiliences.map { contentResilience in
+            return .init(
+                scenario: self,
+                value: .activated,
+                status: .enabled,
+                content: contentResilience
+            )
+        }
+    }
+
+    /// Test 3
+    ///
+    /// Description: To test dark and light mode
+    ///
+    /// Content:
+    /// - value : activated
+    /// - status : enabled
+    /// - content resilience : short label
+    /// - **mode : all**
+    /// - a11y size : medium
+    private func test3() -> [SwitchConfigurationSnapshotTests] {
+        let modes = ComponentSnapshotTestConstants.Modes.all
+
+        return modes.map { mode in
+            return .init(
+                scenario: self,
+                value: .activated,
+                status: .enabled,
+                content: .shortLabel,
+                modes: [mode]
+            )
         }
     }
 
     /// Test 4
     ///
-    /// Description: To test with and without icons for dark and light mode
+    /// Description: To test a11y sizes
     ///
     /// Content:
-    /// - intents : basic
     /// - value : activated
     /// - status : enabled
-    /// - label alignement : right
-    /// - **is Icon : all**
-    /// - content resilience : short label
-    /// - **mode : all**
-    /// - a11y size : medium
-    private func test4() -> [SwitchConfigurationSnapshotTests] {
-        let isIcons = Bool.allCases
-        let modes = Constants.Modes.all
-
-        return isIcons.flatMap { isIcon in
-            modes.map { mode in
-                return .init(
-                    scenario: self,
-                    intent: .basic,
-                    value: .activated,
-                    status: .enabled,
-                    alignment: .right,
-                    isIcon: isIcon,
-                    content: .shortLabel,
-                    modes: [mode]
-                )
-            }
-        }
-    }
-
-    /// Test 5
-    ///
-    /// Description: To test a11y sizes for different alignements
-    ///
-    /// Content:
-    /// - intents : basic
-    /// - value : activated
-    /// - status : enabled
-    /// - **label alignement : all**
-    /// - is Icon : true
     /// - content resilience : multiline label
     /// - mode : light
     /// - **a11y size : all**
-    private func test5() -> [SwitchConfigurationSnapshotTests] {
-        let alignments = SwitchAlignment.allCases
-        let sizes = Constants.Sizes.all
+    private func test4() -> [SwitchConfigurationSnapshotTests] {
+        let sizes = ComponentSnapshotTestConstants.Sizes.all
 
-        return alignments.flatMap { alignment in
-            sizes.map { size in
-                return .init(
-                    scenario: self,
-                    intent: .basic,
-                    value: .activated,
-                    status: .enabled,
-                    alignment: alignment,
-                    isIcon: true,
-                    content: .multilineLabel,
-                    sizes: [size]
-                )
+        return sizes.map { size in
+            return .init(
+                scenario: self,
+                value: .activated,
+                status: .enabled,
+                content: .multilineLabel,
+                sizes: [size]
+            )
+        }
+    }
+
+    // MARK: - Documentation
+
+    // Used to generate screenshot for Documentation
+    private func documentation() -> [SwitchConfigurationSnapshotTests] {
+        let contentResiliences = SwitchContentResilience.allCases
+        let values = SwitchValue.allCases
+        let statutes = SwitchStatus.allCases
+
+        return contentResiliences.flatMap { contentResilience in
+            values.flatMap { value in
+                statutes.map { status in
+                    return .init(
+                        scenario: self,
+                        value: value,
+                        status: status,
+                        content: contentResilience,
+                        modes: Constants.Modes.all
+                    )
+                }
             }
         }
     }
