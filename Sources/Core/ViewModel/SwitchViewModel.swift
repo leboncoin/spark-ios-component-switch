@@ -23,6 +23,7 @@ internal class SwitchViewModel: ObservableObject {
     @Published private(set) var titleFont: Font = .body
     @Published private(set) var isIcon: Bool = false
     @Published private(set) var spacing: CGFloat = 0
+    @Published private(set) var showHiddenEmptyLabel = false
 
     // MARK: - Properties
 
@@ -73,6 +74,8 @@ internal class SwitchViewModel: ObservableObject {
         }
     }
 
+    private(set) var isCustomLabel: Bool?
+
     // MARK: - Use Case Properties
 
     private let getColorsUseCase: SwitchGetColorsUseCaseable
@@ -80,6 +83,7 @@ internal class SwitchViewModel: ObservableObject {
     private let getDimUseCase: SwitchGetDimUseCaseable
     private let getTitleFontUseCase: SwitchGetTitleFontUseCaseable
     private let getIsIconUseCase: SwitchGetIsIconUseCaseable
+    private let getShowHiddenEmptyLabelUseCase: SwitchGetShowHiddenEmptyLabelUseCaseable
     private let getSpacingUseCase: SwitchGetSpacingUseCaseable
 
     // MARK: - Initialization
@@ -90,6 +94,7 @@ internal class SwitchViewModel: ObservableObject {
         getDimUseCase: SwitchGetDimUseCaseable = SwitchGetDimUseCase(),
         getTitleFontUseCase: SwitchGetTitleFontUseCaseable = SwitchGetTitleFontUseCase(),
         getIsIconUseCase: SwitchGetIsIconUseCaseable = SwitchGetIsIconUseCase(),
+        getShowHiddenEmptyLabelUseCase: SwitchGetShowHiddenEmptyLabelUseCaseable = SwitchGetShowHiddenEmptyLabelUseCase(),
         getSpacingUseCase: SwitchGetSpacingUseCaseable = SwitchGetSpacingUseCase()
     ) {
         self.getColorsUseCase = getColorsUseCase
@@ -97,6 +102,7 @@ internal class SwitchViewModel: ObservableObject {
         self.getDimUseCase = getDimUseCase
         self.getTitleFontUseCase = getTitleFontUseCase
         self.getIsIconUseCase = getIsIconUseCase
+        self.getShowHiddenEmptyLabelUseCase = getShowHiddenEmptyLabelUseCase
         self.getSpacingUseCase = getSpacingUseCase
     }
 
@@ -107,13 +113,15 @@ internal class SwitchViewModel: ObservableObject {
         isOn: Bool,
         isOnOffSwitchLabelsEnabled: Bool,
         contrast: ColorSchemeContrast,
-        isEnabled: Bool
+        isEnabled: Bool,
+        isCustomLabel: Bool
     ) {
         self.theme = theme
         self.isOn = isOn
         self.isOnOffSwitchLabelsEnabled = isOnOffSwitchLabelsEnabled
         self.contrast = contrast
         self.isEnabled = isEnabled
+        self.isCustomLabel = isCustomLabel
 
         self.setDynamicColors()
         self.setStaticColors()
@@ -122,6 +130,7 @@ internal class SwitchViewModel: ObservableObject {
         self.setFont()
         self.setIsIcon()
         self.setSpacing()
+        self.setShowHiddenEmptyLabel()
 
         self.alreadyUpdateAll = true
     }
@@ -191,5 +200,15 @@ internal class SwitchViewModel: ObservableObject {
         }
 
         self.spacing = self.getSpacingUseCase.execute(theme: theme)
+    }
+
+    private func setShowHiddenEmptyLabel() {
+        guard let isCustomLabel else {
+            return
+        }
+
+        self.showHiddenEmptyLabel = self.getShowHiddenEmptyLabelUseCase.execute(
+            isCustomLabel: isCustomLabel
+        )
     }
 }
