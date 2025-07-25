@@ -31,6 +31,7 @@ final class SwitchViewModelTests: XCTestCase {
             otherDim: 1,
             otherTitleFont: .body,
             otherIsIcon: false,
+            otherShowHiddenEmptyLabel: false,
             otherSpacing: 0
         )
 
@@ -43,6 +44,7 @@ final class SwitchViewModelTests: XCTestCase {
             getDim: true,
             getTitleFont: true,
             getIsIcon: true,
+            getShowHiddenEmptyLabel: true,
             getSpacing: true
         )
     }
@@ -105,6 +107,13 @@ final class SwitchViewModelTests: XCTestCase {
             givenIsOnOffSwitchLabelsEnabled: stub.givenIsOnOffSwitchLabelsEnabled,
             givenContrast: stub.givenContrast,
             expectedReturnValue: stub.expectedIsIcon
+        )
+
+        SwitchGetShowHiddenEmptyLabelUseCaseableMockTest.XCTAssert(
+            stub.getShowHiddenEmptyLabelUseCaseMock,
+            expectedNumberOfCalls: 1,
+            givenIsCustomLabel: stub.givenIsCustomLabel,
+            expectedReturnValue: stub.expectedShowHiddenEmptyLabel
         )
 
         SwitchGetSpacingUseCaseableMockTest.XCTAssert(
@@ -379,6 +388,7 @@ final class SwitchViewModelTests: XCTestCase {
         viewModel.isOnOffSwitchLabelsEnabled = true
         viewModel.contrast = .increased
         viewModel.isEnabled = true
+        viewModel.isEnabled = true
 
         // THEN
         XCTAssertEqualToExpected(
@@ -389,6 +399,7 @@ final class SwitchViewModelTests: XCTestCase {
             otherDim: 1,
             otherTitleFont: .body,
             otherIsIcon: false,
+            otherShowHiddenEmptyLabel: false,
             otherSpacing: 0
         )
 
@@ -401,6 +412,7 @@ final class SwitchViewModelTests: XCTestCase {
             getDim: true,
             getTitleFont: true,
             getIsIcon: true,
+            getShowHiddenEmptyLabel: true,
             getSpacing: true
         )
     }
@@ -417,6 +429,7 @@ private final class Stub: SwitchViewModelStub {
     let givenIsOnOffSwitchLabelsEnabled: Bool = false
     let givenContrast: ColorSchemeContrast = .standard
     let givenIsEnabled: Bool = false
+    let givenIsCustomLabel: Bool = false
 
     // MARK: - Expected Properties
 
@@ -425,8 +438,9 @@ private final class Stub: SwitchViewModelStub {
     let expectedContentRadius: CGFloat = 4
     let expectedDim: CGFloat = 0.5
     let expectedTitleFont: Font = .title
-    let expectedIsIcon: Bool = true
+    let expectedIsIcon = true
     let expectedSpacing: CGFloat = 10
+    let expectedShowHiddenEmptyLabel = true
 
     // MARK: - Initialization
 
@@ -450,12 +464,16 @@ private final class Stub: SwitchViewModelStub {
         let getSpacingUseCaseMock = SwitchGetSpacingUseCaseableGeneratedMock()
         getSpacingUseCaseMock.executeWithThemeReturnValue = self.expectedSpacing
 
+        let getShowHiddenEmptyLabelUseCaseMock = SwitchGetShowHiddenEmptyLabelUseCaseableGeneratedMock()
+        getShowHiddenEmptyLabelUseCaseMock.executeWithIsCustomLabelReturnValue = self.expectedShowHiddenEmptyLabel
+
         let viewModel = SwitchViewModel(
             getColorsUseCase: getColorsUseCaseMock,
             getContentRadiusUseCase: getContentRadiusUseCaseMock,
             getDimUseCase: getDimUseCaseMock,
             getTitleFontUseCase: getTitleFontUseCaseMock,
             getIsIconUseCase: getIsIconUseCaseMock,
+            getShowHiddenEmptyLabelUseCase: getShowHiddenEmptyLabelUseCaseMock,
             getSpacingUseCase: getSpacingUseCaseMock
         )
 
@@ -466,6 +484,7 @@ private final class Stub: SwitchViewModelStub {
             getDimUseCaseMock: getDimUseCaseMock,
             getTitleFontUseCaseMock: getTitleFontUseCaseMock,
             getIsIconUseCaseMock: getIsIconUseCaseMock,
+            getShowHiddenEmptyLabelUseCaseMock: getShowHiddenEmptyLabelUseCaseMock,
             getSpacingUseCaseMock: getSpacingUseCaseMock
         )
     }
@@ -481,7 +500,8 @@ private extension SwitchViewModel {
             isOn: stub.givenIsOn,
             isOnOffSwitchLabelsEnabled: stub.givenIsOnOffSwitchLabelsEnabled,
             contrast: stub.givenContrast,
-            isEnabled: stub.givenIsEnabled
+            isEnabled: stub.givenIsEnabled,
+            isCustomLabel: stub.givenIsCustomLabel
         )
     }
 }
@@ -496,6 +516,7 @@ private func XCTAssertNotCalled(
     getDim getDimNotCalled: Bool = false,
     getTitleFont getTitleFontNotCalled: Bool = false,
     getIsIcon getIsIconNotCalled: Bool = false,
+    getShowHiddenEmptyLabel getShowHiddenEmptyLabelCalled: Bool = false,
     getSpacing getSpacingNotCalled: Bool = false
 ) {
     if getDynamicColorsNotCalled {
@@ -539,6 +560,12 @@ private func XCTAssertNotCalled(
             executeUIWithIsOnOffSwitchLabelsEnabledAndContrastNumberOfCalls: 0
         )
     }
+    if getShowHiddenEmptyLabelCalled {
+        SwitchGetShowHiddenEmptyLabelUseCaseableMockTest.XCTCallsCount(
+            stub.getShowHiddenEmptyLabelUseCaseMock,
+            executeWithIsCustomLabelNumberOfCalls: 0
+        )
+    }
 
     if getSpacingNotCalled {
         SwitchGetSpacingUseCaseableMockTest.XCTCallsCount(
@@ -556,6 +583,7 @@ private func XCTAssertEqualToExpected(
     otherDim: CGFloat? = nil,
     otherTitleFont: Font? = nil,
     otherIsIcon: Bool? = nil,
+    otherShowHiddenEmptyLabel: Bool? = nil,
     otherSpacing: CGFloat? = nil
 ) {
     let viewModel = stub.viewModel
@@ -589,6 +617,11 @@ private func XCTAssertEqualToExpected(
         viewModel.isIcon,
         otherIsIcon ?? stub.expectedIsIcon,
         "Wrong isIcon value"
+    )
+    XCTAssertEqual(
+        viewModel.showHiddenEmptyLabel,
+        otherShowHiddenEmptyLabel ?? stub.expectedShowHiddenEmptyLabel,
+        "Wrong otherShowHiddenEmptyLabel value"
     )
     XCTAssertEqual(
         viewModel.spacing,
