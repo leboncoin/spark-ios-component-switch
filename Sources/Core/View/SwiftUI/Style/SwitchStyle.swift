@@ -40,10 +40,9 @@ struct SwitchStyle: ToggleStyle {
         ScaledHStack(alignment: .top, spacing: self.viewModel.spacing) {
 
             ZStack(alignment: .center) {
-                configuration.label
+                self.hiddenLabel(configuration: configuration)
                     .lineLimit(1)
                     .frame(width: ToggleConstants.width, alignment: .top)
-                    .accessibilityHidden(true)
                     .hidden()
 
                 // Toggle
@@ -105,6 +104,9 @@ struct SwitchStyle: ToggleStyle {
                     .easeOut(duration: SwitchConstants.animationDuration),
                     value: configuration.isOn
                 )
+                .accessibilityAction {
+                    configuration.isOn.toggle()
+                }
             }
 
             // Title
@@ -116,6 +118,16 @@ struct SwitchStyle: ToggleStyle {
     }
 
     // MARK: - Subview
+
+    @ViewBuilder
+    func hiddenLabel(configuration: Configuration) -> some View {
+        if self.viewModel.showHiddenEmptyLabel {
+            Text(" ")
+                .font(self.viewModel.titleFont)
+        } else {
+            configuration.label
+        }
+    }
 
     private func icon(configuration: Configuration) -> Image {
         if configuration.isOn {

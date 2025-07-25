@@ -287,7 +287,8 @@ public struct SparkToggle<Label>: View where Label: View {
                     isOn: self.isOn,
                     isOnOffSwitchLabelsEnabled: UIAccessibility.isOnOffSwitchLabelsEnabled,
                     contrast: self.contrast,
-                    isEnabled: self.isEnabled
+                    isEnabled: self.isEnabled,
+                    isCustomLabel: Label.self != EmptyView.self && Label.self != Text.self
                 )
             }
             .onChange(of: self.isOn) { isOn in
