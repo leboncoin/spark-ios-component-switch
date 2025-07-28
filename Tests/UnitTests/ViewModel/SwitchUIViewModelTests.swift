@@ -70,7 +70,7 @@ final class SwitchUIViewModelTests: XCTestCase {
         SwitchGetAnimationTypeUseCaseableMockTest.XCTAssert(
             stub.getAnimationTypeUseCaseMock,
             expectedNumberOfCalls: 1,
-            givenIsOnAnimated: false,
+            givenIsOnAnimated: true,
             givenIsReduceMotionEnabled: stub.givenIsReduceMotionEnabled,
             expectedReturnValue: stub.expectedAnimationType
         )
@@ -361,7 +361,7 @@ final class SwitchUIViewModelTests: XCTestCase {
         SwitchGetAnimationTypeUseCaseableMockTest.XCTAssert(
             stub.getAnimationTypeUseCaseMock,
             expectedNumberOfCalls: 1,
-            givenIsOnAnimated: false,
+            givenIsOnAnimated: true,
             givenIsReduceMotionEnabled: givenIsReduceMotionEnabled,
             expectedReturnValue: stub.expectedAnimationType
         )
@@ -462,19 +462,12 @@ final class SwitchUIViewModelTests: XCTestCase {
         // UseCase Calls Count
         XCTAssertNotCalled(
             on: stub,
+            getAnimationType: true,
             getStaticColors: true,
             getContentRadius: true,
             getDim: true,
             getSpacing: true,
             getTitleFont: true
-        )
-
-        SwitchGetAnimationTypeUseCaseableMockTest.XCTAssert(
-            stub.getAnimationTypeUseCaseMock,
-            expectedNumberOfCalls: 1,
-            givenIsOnAnimated: true,
-            givenIsReduceMotionEnabled: stub.givenIsReduceMotionEnabled,
-            expectedReturnValue: stub.expectedAnimationType
         )
 
         SwitchGetColorsUseCaseableMockTest.XCTAssert(
@@ -511,7 +504,7 @@ final class SwitchUIViewModelTests: XCTestCase {
         stub.resetMockedData()
 
         let givenIsOn = true
-        let givenIsAnimated = true
+        let givenIsAnimated = false
 
         // WHEN
         viewModel.setIsOn(true, animated: givenIsAnimated)
