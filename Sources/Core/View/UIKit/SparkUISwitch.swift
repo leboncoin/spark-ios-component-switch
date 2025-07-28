@@ -44,6 +44,8 @@ import SparkTheming
 /// )
 /// mySwitch.text = "My switch"
 /// ```
+/// *Note*: Please **do not set a text/attributedText** on the ``textLabel`` but use the ``text`` and
+/// ``attributedText`` directly on the ``SparkUISwitch``.
 /// ![Toggle rendering with a text.](component_with_title.png)
 ///
 /// ![Toggle rendering with a multiline text.](component_with_mutliline.png)
@@ -77,13 +79,11 @@ public final class SparkUISwitch: UIControl {
         let view = UIView()
         view.addSubview(self.toggleHidenLabel)
         view.addSubview(self.toggleView)
-        view.backgroundColor = .clear
         return view
     }()
 
     private lazy var toggleHidenLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 1
         label.adjustsFontForContentSizeCategory = self.textLabel.adjustsFontForContentSizeCategory
         label.isHidden = true
         return label
@@ -117,11 +117,7 @@ public final class SparkUISwitch: UIControl {
         return stackView
     }()
 
-    private var toggleLeftSpaceView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        return view
-    }()
+    private let toggleLeftSpaceView = UIView()
 
     private lazy var toggleDotView: UIView = {
         let view = UIView()
@@ -137,13 +133,12 @@ public final class SparkUISwitch: UIControl {
         return imageView
     }()
 
-    private var toggleRightSpaceView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        return view
-    }()
+    private let toggleRightSpaceView = UIView()
 
-    /// The UILabel used to display the switch text
+    /// The UILabel used to display the switch text.
+    ///
+    /// Please **do not set a text/attributedText** in this label but use
+    /// the ``text`` and ``attributedText`` directly on the ``SparkUISwitch``.
     public var textLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -199,6 +194,7 @@ public final class SparkUISwitch: UIControl {
         }
         set {
             self.textLabel.isHidden = newValue == nil
+            self.textLabel.attributedText = nil
             self.textLabel.text = newValue
             self.toggleHidenLabel.text = newValue
             self.invalidateIntrinsicContentSize()
@@ -214,6 +210,7 @@ public final class SparkUISwitch: UIControl {
         }
         set {
             self.textLabel.isHidden = newValue == nil
+            self.textLabel.text = nil
             self.textLabel.attributedText = newValue
             self.toggleHidenLabel.attributedText = newValue
             self.invalidateIntrinsicContentSize()
@@ -230,7 +227,7 @@ public final class SparkUISwitch: UIControl {
         }
         set {
             self.viewModel.isEnabled = newValue
-            self.toggleView.isUserInteractionEnabled = self.isEnabled
+            self.updateToggleViewUserInteractionEnabled()
             self.updateAccessibilityEnabledTrait()
         }
     }
@@ -253,10 +250,10 @@ public final class SparkUISwitch: UIControl {
     private var toggleDotTrailingConstraint: NSLayoutConstraint?
     private var toggleDotBottomConstraint: NSLayoutConstraint?
 
-    private var toggleHeight: CGFloat = Constants.ToggleSizes.height
-    private var toggleWidth: CGFloat = Constants.ToggleSizes.width
-    private var toggleSpacing: CGFloat = Constants.ToggleSizes.padding
-    private var toggleDotSpacing: CGFloat = Constants.toggleDotImagePadding
+    private let toggleHeight: CGFloat = Constants.ToggleSizes.height
+    private let toggleWidth: CGFloat = Constants.ToggleSizes.width
+    private let toggleSpacing: CGFloat = Constants.ToggleSizes.padding
+    private let toggleDotSpacing: CGFloat = Constants.toggleDotImagePadding
 
     private let onIcon: UIImage
     private let offIcon: UIImage
@@ -419,7 +416,7 @@ public final class SparkUISwitch: UIControl {
 
     private func setupConstraints() {
         // Global
-        self.setupViewConstraints()
+        self.translatesAutoresizingMaskIntoConstraints = false
         self.setupContentStackViewConstraints()
 
         // Toggle View and subviews
@@ -432,10 +429,6 @@ public final class SparkUISwitch: UIControl {
 
         // Text Label
         self.setupTextLabelContraints()
-    }
-
-    private func setupViewConstraints() {
-        self.translatesAutoresizingMaskIntoConstraints = false
     }
 
     private func setupContentStackViewConstraints() {
@@ -557,7 +550,6 @@ public final class SparkUISwitch: UIControl {
                 self.toggleDotWidthConstraint?.constant = Constants.ToggleSizes.dotIncreasePressedSize
                 self.updateHover(show: true)
                 self.layoutIfNeeded()
-
             }
 
         case .ended:
@@ -680,6 +672,10 @@ public final class SparkUISwitch: UIControl {
         }
     }
 
+    private func updateToggleViewUserInteractionEnabled() {
+        self.toggleView.isUserInteractionEnabled = self.isEnabled
+    }
+
     // MARK: - Accessibility
 
     private func setupAccessibility() {
@@ -727,8 +723,9 @@ public final class SparkUISwitch: UIControl {
             guard let self else { return }
 
             UIView.execute(animationType: self.viewModel.animationType) { [weak self] in
-                self?.toggleView.backgroundColor = dynamicColors.backgroundColors.uiColor
-                self?.toggleDotImageView.tintColor = dynamicColors.dotForegroundColors.uiColor
+                guard let self else { return }
+                self.toggleView.backgroundColor = dynamicColors.backgroundColors.uiColor
+                self.toggleDotImageView.tintColor = dynamicColors.dotForegroundColors.uiColor
             }
         }
         // **
@@ -806,15 +803,16 @@ public final class SparkUISwitch: UIControl {
             }
 
             // Lock interaction before animation
-            let currentUserInteraction = self.toggleView.isUserInteractionEnabled
             self.toggleView.isUserInteractionEnabled = false
 
             UIView.execute(animationType: self.viewModel.animationType) { [weak self] in
-                self?.toggleLeftSpaceView.isHidden = !showSpace.showLeft
-                self?.toggleRightSpaceView.isHidden = !showSpace.showRight
+                guard let self else { return }
+
+                self.toggleLeftSpaceView.isHidden = !showSpace.showLeft
+                self.toggleRightSpaceView.isHidden = !showSpace.showRight
             } completion: { [weak self] _ in
-                // Unlock interaction after animation
-                self?.toggleView.isUserInteractionEnabled = currentUserInteraction
+                // Reset interaction after animation
+                self?.updateToggleViewUserInteractionEnabled()
             }
         }
         // **
