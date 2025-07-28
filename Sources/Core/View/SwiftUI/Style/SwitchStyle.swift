@@ -120,7 +120,7 @@ struct SwitchStyle: ToggleStyle {
     // MARK: - Subview
 
     @ViewBuilder
-    func hiddenLabel(configuration: Configuration) -> some View {
+    private func hiddenLabel(configuration: Configuration) -> some View {
         if self.viewModel.showHiddenEmptyLabel {
             Text(" ")
                 .font(self.viewModel.titleFont)
@@ -137,7 +137,8 @@ struct SwitchStyle: ToggleStyle {
         }
     }
 
-    @ViewBuilder func pressedView() -> some View {
+    @ViewBuilder
+    private func pressedView() -> some View {
         if self.isPressed {
             RoundedRectangle(cornerRadius: self.viewModel.contentRadius)
                 .inset(by: -ToggleConstants.hoverPadding / 2)
