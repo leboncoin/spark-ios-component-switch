@@ -84,7 +84,7 @@ internal class SwitchUIViewModel: ObservableObject {
         }
     }
 
-    private var isOnAnimated: Bool = false {
+    private var isOnAnimated: Bool = true {
         didSet {
             guard oldValue != self.isOnAnimated, self.alreadyUpdateAll else { return }
 

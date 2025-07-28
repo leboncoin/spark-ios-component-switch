@@ -30,7 +30,7 @@ enum SwitchConstants {
         /// Toggle size
         static let dotIncreasePressedSize: CGFloat = 10
         /// Toggle padding
-        static let padding: CGFloat = 4 // TODO: deprecated ?
+        static let padding: CGFloat = 4
         /// Dot size
         static let dotIconSize: CGFloat = 14
         /// Hover padding
