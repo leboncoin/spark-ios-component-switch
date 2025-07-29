@@ -1,6 +1,6 @@
 //
 //  SwitchGetColorsUseCaseTests.swift
-//  SparkSwitchTests
+//  SparkComponentSwitchTests
 //
 //  Created by robin.lemaire on 12/05/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.
@@ -8,8 +8,8 @@
 
 import XCTest
 import SwiftUI
-@testable import SparkSwitch
-@_spi(SI_SPI) @testable import SparkSwitchTesting
+@testable import SparkComponentSwitch
+@_spi(SI_SPI) @testable import SparkComponentSwitchTesting
 import SparkTheming
 @_spi(SI_SPI) import SparkThemingTesting
 

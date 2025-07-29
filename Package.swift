@@ -5,18 +5,18 @@ import PackageDescription
 
 // swiftlint:disable all
 let package = Package(
-    name: "SparkSwitch",
+    name: "SparkComponentSwitch",
     platforms: [
         .iOS(.v16)
     ],
     products: [
         .library(
-            name: "SparkSwitch",
-            targets: ["SparkSwitch"]
+            name: "SparkComponentSwitch",
+            targets: ["SparkComponentSwitch"]
         ),
         .library(
-            name: "SparkSwitchTesting",
-            targets: ["SparkSwitchTesting"]
+            name: "SparkComponentSwitchTesting",
+            targets: ["SparkComponentSwitchTesting"]
         )
     ],
     dependencies: [
@@ -33,7 +33,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "SparkSwitch",
+            name: "SparkComponentSwitch",
             dependencies: [
                 .product(
                     name: "SparkCommon",
@@ -47,9 +47,9 @@ let package = Package(
             path: "Sources/Core"
         ),
         .target(
-            name: "SparkSwitchTesting",
+            name: "SparkComponentSwitchTesting",
             dependencies: [
-                "SparkSwitch",
+                "SparkComponentSwitch",
                 .product(
                     name: "SparkCommon",
                     package: "spark-ios-common"
@@ -70,10 +70,10 @@ let package = Package(
             path: "Sources/Testing"
         ),
         .testTarget(
-            name: "SparkSwitchUnitTests",
+            name: "SparkComponentSwitchUnitTests",
             dependencies: [
-                "SparkSwitch",
-                "SparkSwitchTesting",
+                "SparkComponentSwitch",
+                "SparkComponentSwitchTesting",
                 .product(
                     name: "SparkCommonTesting",
                     package: "spark-ios-common"
@@ -86,10 +86,10 @@ let package = Package(
             path: "Tests/UnitTests"
         ),
         .testTarget(
-            name: "SparkSwitchSnapshotTests",
+            name: "SparkComponentSwitchSnapshotTests",
             dependencies: [
-                "SparkSwitch",
-                "SparkSwitchTesting",
+                "SparkComponentSwitch",
+                "SparkComponentSwitchTesting",
                 .product(
                     name: "SparkCommonSnapshotTesting",
                     package: "spark-ios-common"

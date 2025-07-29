@@ -1,6 +1,6 @@
 //
 //  SwitchViewModel.swift
-//  SparkSwitch
+//  SparkComponentSwitch
 //
 //  Created by robin.lemaire on 23/05/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.
@@ -27,23 +27,23 @@ final class SwitchViewModel: ObservableObject {
 
     @Published var isOnChanged: Bool?
 
-    @Published private (set) var isToggleInteractionEnabled: Bool?
-    @Published private (set) var toggleOpacity: CGFloat?
+    @Published private(set) var isToggleInteractionEnabled: Bool?
+    @Published private(set) var toggleOpacity: CGFloat?
 
-    @Published private (set) var toggleBackgroundColorToken: (any ColorToken)?
-    @Published private (set) var toggleDotBackgroundColorToken: (any ColorToken)?
-    @Published private (set) var toggleDotForegroundColorToken: (any ColorToken)?
-    @Published private (set) var textForegroundColorToken: (any ColorToken)?
+    @Published private(set) var toggleBackgroundColorToken: (any ColorToken)?
+    @Published private(set) var toggleDotBackgroundColorToken: (any ColorToken)?
+    @Published private(set) var toggleDotForegroundColorToken: (any ColorToken)?
+    @Published private(set) var textForegroundColorToken: (any ColorToken)?
 
-    @Published private (set) var isToggleOnLeft: Bool?
-    @Published private (set) var horizontalSpacing: CGFloat?
+    @Published private(set) var isToggleOnLeft: Bool?
+    @Published private(set) var horizontalSpacing: CGFloat?
 
-    @Published private (set) var showToggleLeftSpace: Bool?
+    @Published private(set) var showToggleLeftSpace: Bool?
 
-    @Published private (set) var toggleDotImagesState: SwitchImagesState?
+    @Published private(set) var toggleDotImagesState: SwitchImagesState?
 
-    @Published private (set) var displayedText: DisplayedText?
-    @Published private (set) var textFontToken: TypographyFontToken?
+    @Published private(set) var displayedText: DisplayedText?
+    @Published private(set) var textFontToken: TypographyFontToken?
 
     // MARK: - Private Properties
 

@@ -1,6 +1,6 @@
 //
 //  SwitchUIViewSnapshotTests.swift
-//  SparkSwitchSnapshotTests
+//  SparkComponentSwitchSnapshotTests
 //
 //  Created by robin.lemaire on 02/10/2024.
 //  Copyright © 2023 Leboncoin. All rights reserved.
@@ -8,7 +8,7 @@
 
 import XCTest
 import SnapshotTesting
-@testable import SparkSwitch
+@testable import SparkComponentSwitch
 @_spi(SI_SPI) import SparkCommonSnapshotTesting
 @_spi(SI_SPI) import SparkCommon
 @_spi(SI_SPI) import SparkCommonTesting

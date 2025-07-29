@@ -1,6 +1,6 @@
 //
 //  SwitchViewModelTests.swift
-//  SparkSwitchTests
+//  SparkComponentSwitchTests
 //
 //  Created by robin.lemaire on 26/05/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.
@@ -8,8 +8,8 @@
 
 import XCTest
 import Combine
-@testable import SparkSwitch
-@_spi(SI_SPI) @testable import SparkSwitchTesting
+@testable import SparkComponentSwitch
+@_spi(SI_SPI) @testable import SparkComponentSwitchTesting
 @_spi(SI_SPI) import SparkCommon
 @_spi(SI_SPI) import SparkCommonTesting
 @_spi(SI_SPI) import SparkThemingTesting
@@ -1485,10 +1485,10 @@ private final class Stub {
     let isOnChangedPublisherMock: PublisherMock<Published<Bool?>.Publisher>
     let isToggleInteractionEnabledPublisherMock: PublisherMock<Published<Bool?>.Publisher>
     let toggleOpacityPublisherMock: PublisherMock<Published<CGFloat?>.Publisher>
-    let toggleBackgroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
-    let toggleDotBackgroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
-    let toggleDotForegroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
-    let textForegroundColorTokenPublisherMock: PublisherMock<Published<ColorToken?>.Publisher>
+    let toggleBackgroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
+    let toggleDotBackgroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
+    let toggleDotForegroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
+    let textForegroundColorTokenPublisherMock: PublisherMock<Published<(any ColorToken)?>.Publisher>
     let isToggleOnLeftPublisherMock: PublisherMock<Published<Bool?>.Publisher>
     let horizontalSpacingPublisherMock: PublisherMock<Published<CGFloat?>.Publisher>
     let showToggleLeftSpacePublisherMock: PublisherMock<Published<Bool?>.Publisher>
@@ -1622,7 +1622,7 @@ private final class Stub {
 
     func resetMockedData() {
         // Clear UseCases Mock
-        let useCases: [SparkSwitchTesting.ResetGeneratedMock] = [
+        let useCases: [SparkComponentSwitchTesting.ResetGeneratedMock] = [
             self.getColorsUseCaseMock,
             self.getImagesStateUseCaseMock,
             self.getToggleColorUseCaseMock,

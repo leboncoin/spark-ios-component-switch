@@ -1,12 +1,12 @@
 //
 //  SwitchStatusColors+ExtensionTests.swift
-//  SparkSwitch
+//  SparkComponentSwitch
 //
 //  Created by robin.lemaire on 07/07/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.
 //
 
-@testable import SparkSwitch
+@testable import SparkComponentSwitch
 import SparkTheming
 @_spi(SI_SPI) import SparkThemingTesting
 
