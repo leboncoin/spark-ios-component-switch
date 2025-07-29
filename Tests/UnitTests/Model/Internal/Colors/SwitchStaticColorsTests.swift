@@ -1,6 +1,6 @@
 //
 //  ToggleStaticColorsTests.swift
-//  SparkSelectionControlsSnapshotTests
+//  SparkSwitchTests
 //
 //  Created by robin.lemaire on 28/07/2025.
 //  Copyright © 2025 Leboncoin. All rights reserved.

@@ -8,8 +8,6 @@
 
 import Foundation
 
-// TODO: test
-
 enum SwitchConstants {
     /// Animation duration is 200ms
     static let animationDuration = 0.2
