@@ -1,6 +1,6 @@
 //
 //  SwitchStatusColors.swift
-//  SparkSwitch
+//  SparkComponentSwitch
 //
 //  Created by robin.lemaire on 07/07/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.

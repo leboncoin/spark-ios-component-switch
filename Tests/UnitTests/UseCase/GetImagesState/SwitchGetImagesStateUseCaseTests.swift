@@ -1,6 +1,6 @@
 //
 //  SwitchGetImagesStateUseCaseTests.swift
-//  SparkSwitchTests
+//  SparkComponentSwitchTests
 //
 //  Created by robin.lemaire on 12/09/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.
@@ -8,7 +8,7 @@
 
 import XCTest
 import SwiftUI
-@testable import SparkSwitch
+@testable import SparkComponentSwitch
 @_spi(SI_SPI) import SparkCommon
 @_spi(SI_SPI) import SparkCommonTesting
 

@@ -1,13 +1,13 @@
 //
 //  SwitchSubviewTypeTests.swift
-//  SparkSwitchTests
+//  SparkComponentSwitchTests
 //
 //  Created by robin.lemaire on 14/09/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.
 //
 
 import XCTest
-@testable import SparkSwitch
+@testable import SparkComponentSwitch
 
 final class SwitchSubviewTypeTests: XCTestCase {
 

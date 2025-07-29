@@ -1,6 +1,6 @@
 //
 //  SwitchView.swift
-//  SparkSwitch
+//  SparkComponentSwitch
 //
 //  Created by robin.lemaire on 11/09/2023.
 //  Copyright © 2023 Leboncoin. All rights reserved.

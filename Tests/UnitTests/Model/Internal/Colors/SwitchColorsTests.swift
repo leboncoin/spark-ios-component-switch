@@ -1,13 +1,13 @@
 //
 //  SwitchColorsTests.swift
-//  SparkSwitchTests
+//  SparkComponentSwitchTests
 //
 //  Created by michael.zimmermann on 24.07.23.
 //  Copyright © 2023 Leboncoin. All rights reserved.
 //
 
 import XCTest
-@testable import SparkSwitch
+@testable import SparkComponentSwitch
 import SparkTheme
 
 final class SwitchColorsTests: XCTestCase {
