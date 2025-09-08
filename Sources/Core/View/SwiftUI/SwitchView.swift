@@ -10,6 +10,7 @@ import SwiftUI
 @_spi(SI_SPI) import SparkCommon
 import SparkTheming
 
+@available(*, deprecated, message: "Use SparkSwitch instead !")
 public struct SwitchView: View {
 
     // MARK: - Type alias
