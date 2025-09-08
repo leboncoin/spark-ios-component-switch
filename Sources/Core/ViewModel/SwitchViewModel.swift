@@ -43,7 +43,7 @@ final class SwitchViewModel: ObservableObject {
     @Published private(set) var toggleDotImagesState: SwitchImagesState?
 
     @Published private(set) var displayedText: DisplayedText?
-    @Published private(set) var textFontToken: TypographyFontToken?
+    @Published private(set) var textFontToken: (any TypographyFontToken)?
 
     // MARK: - Private Properties
 

@@ -1494,7 +1494,7 @@ private final class Stub {
     let showToggleLeftSpacePublisherMock: PublisherMock<Published<Bool?>.Publisher>
     let toggleDotImagesStatePublisherMock: PublisherMock<Published<SwitchImagesState?>.Publisher>
     let displayedTextPublisherMock: PublisherMock<Published<DisplayedText?>.Publisher>
-    let textFontTokenPublisherMock: PublisherMock<Published<TypographyFontToken?>.Publisher>
+    let textFontTokenPublisherMock: PublisherMock<Published<(any TypographyFontToken)?>.Publisher>
 
     // MARK: - Initialization
 
