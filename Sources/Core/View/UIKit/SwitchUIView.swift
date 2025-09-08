@@ -24,6 +24,7 @@ public protocol SwitchUIViewDelegate: AnyObject {
 }
 
 /// The UIKit version for the switch.
+@available(*, deprecated, message: "Use SparkUISwitch instead !")
 public final class SwitchUIView: UIView {
 
     // MARK: - Type alias
