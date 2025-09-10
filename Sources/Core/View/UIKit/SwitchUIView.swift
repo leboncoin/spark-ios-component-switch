@@ -522,6 +522,8 @@ public final class SwitchUIView: UIView {
 
         self.toggleView.layoutIfNeeded()
         self.toggleView.setCornerRadius(self.theme.border.radius.full)
+
+        self.toggleDotView.layoutIfNeeded()
         self.toggleDotView.setCornerRadius(self.theme.border.radius.full)
     }
 
