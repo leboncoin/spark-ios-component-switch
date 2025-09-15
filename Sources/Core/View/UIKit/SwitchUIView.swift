@@ -24,6 +24,7 @@ public protocol SwitchUIViewDelegate: AnyObject {
 }
 
 /// The UIKit version for the switch.
+@available(*, deprecated, message: "Use SparkUISwitch instead !")
 public final class SwitchUIView: UIView {
 
     // MARK: - Type alias
@@ -146,7 +147,7 @@ public final class SwitchUIView: UIView {
     public private(set) lazy var isOnChangedPublisher: AnyPublisher<Bool, Never> = self.isOnChangedSubject.eraseToAnyPublisher()
 
     /// The spark theme of the switch.
-    public var theme: Theme {
+    public var theme: any Theme {
         get {
             return self.viewModel.theme
         }
@@ -269,7 +270,7 @@ public final class SwitchUIView: UIView {
     ///   - intent: The intent of the switch.
     ///   - isEnabled: The state of the switch: enabled or not.
     public convenience init(
-        theme: Theme,
+        theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
@@ -296,7 +297,7 @@ public final class SwitchUIView: UIView {
     ///   - isEnabled: The state of the switch: enabled or not.
     ///   - images: The images of the switch.
     public convenience init(
-        theme: Theme,
+        theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
@@ -324,7 +325,7 @@ public final class SwitchUIView: UIView {
     ///   - isEnabled: The state of the switch: enabled or not.
     ///   - text: The text of the switch.
     public convenience init(
-        theme: Theme,
+        theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
@@ -352,7 +353,7 @@ public final class SwitchUIView: UIView {
     ///   - isEnabled: The state of the switch: enabled or not.
     ///   - attributedText: The attributed text of the switch.
     public convenience init(
-        theme: Theme,
+        theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
@@ -381,7 +382,7 @@ public final class SwitchUIView: UIView {
     ///   - images: The images of the switch.
     ///   - text: The text of the switch.
     public convenience init(
-        theme: Theme,
+        theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
@@ -411,7 +412,7 @@ public final class SwitchUIView: UIView {
     ///   - images: The images of the switch.
     ///   - attributedText: The attributed text of the switch.
     public convenience init(
-        theme: Theme,
+        theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
@@ -432,7 +433,7 @@ public final class SwitchUIView: UIView {
     }
 
     private init(
-        _ theme: Theme,
+        _ theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
