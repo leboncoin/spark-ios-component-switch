@@ -11,8 +11,8 @@ import SparkTheming
 // sourcery: AutoMockable
 protocol SwitchGetColorsUseCaseable {
     func execute(intent: SwitchIntent,
-                 colors: Colors,
-                 dims: Dims) -> SwitchColors
+                 colors: any Colors,
+                 dims: any Dims) -> SwitchColors
 }
 
 struct SwitchGetColorsUseCase: SwitchGetColorsUseCaseable {
@@ -31,8 +31,8 @@ struct SwitchGetColorsUseCase: SwitchGetColorsUseCaseable {
 
     func execute(
         intent: SwitchIntent,
-        colors: Colors,
-        dims: Dims
+        colors: any Colors,
+        dims: any Dims
     ) -> SwitchColors {
 
         // Get color from use case

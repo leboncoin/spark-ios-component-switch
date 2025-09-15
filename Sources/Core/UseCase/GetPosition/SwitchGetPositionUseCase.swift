@@ -12,7 +12,7 @@ import SparkTheming
 // sourcery: AutoMockable
 protocol SwitchGetPositionUseCaseable {
     func execute(alignment: SwitchAlignment,
-                 spacing: LayoutSpacing,
+                 spacing: any LayoutSpacing,
                  containsText: Bool) -> SwitchPosition
 }
 
@@ -22,7 +22,7 @@ struct SwitchGetPositionUseCase: SwitchGetPositionUseCaseable {
 
     func execute(
         alignment: SwitchAlignment,
-        spacing: LayoutSpacing,
+        spacing: any LayoutSpacing,
         containsText: Bool
     ) -> SwitchPosition {
         var horizontalSpacing: CGFloat

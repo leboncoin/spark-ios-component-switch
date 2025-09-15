@@ -11,11 +11,11 @@ import Foundation
 
 // sourcery: AutoMockable
 protocol SwitchViewModelDependenciesProtocol {
-    var getColorsUseCase: SwitchGetColorsUseCaseable { get }
-    var getImagesStateUseCase: SwitchGetImagesStateUseCaseable { get }
-    var getToggleColorUseCase: SwitchGetToggleColorUseCaseable { get }
-    var getPositionUseCase: SwitchGetPositionUseCaseable { get }
-    var getToggleStateUseCase: SwitchGetToggleStateUseCaseable { get }
+    var getColorsUseCase: any SwitchGetColorsUseCaseable { get }
+    var getImagesStateUseCase: any SwitchGetImagesStateUseCaseable { get }
+    var getToggleColorUseCase: any SwitchGetToggleColorUseCaseable { get }
+    var getPositionUseCase: any SwitchGetPositionUseCaseable { get }
+    var getToggleStateUseCase: any SwitchGetToggleStateUseCaseable { get }
 
     func makeDisplayedTextViewModel(text: String?,
                                     attributedText: AttributedStringEither?) -> DisplayedTextViewModel
@@ -25,20 +25,20 @@ struct SwitchViewModelDependencies: SwitchViewModelDependenciesProtocol {
 
     // MARK: - Properties
 
-    let getColorsUseCase: SwitchGetColorsUseCaseable
-    var getImagesStateUseCase: SwitchGetImagesStateUseCaseable
-    let getToggleColorUseCase: SwitchGetToggleColorUseCaseable
-    let getPositionUseCase: SwitchGetPositionUseCaseable
-    let getToggleStateUseCase: SwitchGetToggleStateUseCaseable
+    let getColorsUseCase: any SwitchGetColorsUseCaseable
+    var getImagesStateUseCase: any SwitchGetImagesStateUseCaseable
+    let getToggleColorUseCase: any SwitchGetToggleColorUseCaseable
+    let getPositionUseCase: any SwitchGetPositionUseCaseable
+    let getToggleStateUseCase: any SwitchGetToggleStateUseCaseable
 
     // MARK: - Initialization
 
     init(
-        getColorsUseCase: SwitchGetColorsUseCaseable = SwitchGetColorsUseCase(),
-        getImagesStateUseCase: SwitchGetImagesStateUseCaseable = SwitchGetImagesStateUseCase(),
-        getToggleColorUseCase: SwitchGetToggleColorUseCaseable = SwitchGetToggleColorUseCase(),
-        getPositionUseCase: SwitchGetPositionUseCaseable = SwitchGetPositionUseCase(),
-        getToggleStateUseCase: SwitchGetToggleStateUseCaseable = SwitchGetToggleStateUseCase()
+        getColorsUseCase: any SwitchGetColorsUseCaseable = SwitchGetColorsUseCase(),
+        getImagesStateUseCase: any SwitchGetImagesStateUseCaseable = SwitchGetImagesStateUseCase(),
+        getToggleColorUseCase: any SwitchGetToggleColorUseCaseable = SwitchGetToggleColorUseCase(),
+        getPositionUseCase: any SwitchGetPositionUseCaseable = SwitchGetPositionUseCase(),
+        getToggleStateUseCase: any SwitchGetToggleStateUseCaseable = SwitchGetToggleStateUseCase()
     ) {
         self.getColorsUseCase = getColorsUseCase
         self.getImagesStateUseCase = getImagesStateUseCase

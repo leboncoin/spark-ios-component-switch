@@ -17,7 +17,7 @@ final class SwitchViewModel: ObservableObject {
     private(set) var isOn: Bool
 
     private let frameworkType: FrameworkType
-    private(set) var theme: Theme
+    private(set) var theme: any Theme
     private(set) var alignment: SwitchAlignment
     private(set) var intent: SwitchIntent
     private(set) var isEnabled: Bool
@@ -56,7 +56,7 @@ final class SwitchViewModel: ObservableObject {
 
     init(
         for frameworkType: FrameworkType,
-        theme: Theme,
+        theme: any Theme,
         isOn: Bool,
         alignment: SwitchAlignment,
         intent: SwitchIntent,
@@ -125,7 +125,7 @@ final class SwitchViewModel: ObservableObject {
         }
     }
 
-    func set(theme: Theme) {
+    func set(theme: any Theme) {
         self.theme = theme
 
         self.updateAll()
