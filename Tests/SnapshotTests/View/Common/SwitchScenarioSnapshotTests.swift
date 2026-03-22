@@ -77,7 +77,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
     /// Description: To test both values with all status
     ///
     /// Content:
-    /// - intents : **basic
+    /// - intents : **support
     /// - value : **all**
     /// - status : all**
     /// - label alignement : right
@@ -93,7 +93,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
             statutes.map { status in
                 return .init(
                     scenario: self,
-                    intent: .basic,
+                    intent: .support,
                     value: value,
                     status: status,
                     alignment: .right,
@@ -109,7 +109,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
     /// Description: To test label alignement for different length of labels
     ///
     /// Content:
-    /// - intents : basic
+    /// - intents : support
     /// - value : activated
     /// - status : enabled
     /// - **label alignement : all**
@@ -125,7 +125,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
             contentResiliences.map { contentResilience in
                 return .init(
                     scenario: self,
-                    intent: .basic,
+                    intent: .support,
                     value: .activated,
                     status: .enabled,
                     alignment: alignment,
@@ -141,7 +141,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
     /// Description: To test with and without icons for dark and light mode
     ///
     /// Content:
-    /// - intents : basic
+    /// - intents : support
     /// - value : activated
     /// - status : enabled
     /// - label alignement : right
@@ -157,7 +157,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
             modes.map { mode in
                 return .init(
                     scenario: self,
-                    intent: .basic,
+                    intent: .support,
                     value: .activated,
                     status: .enabled,
                     alignment: .right,
@@ -174,7 +174,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
     /// Description: To test a11y sizes for different alignements
     ///
     /// Content:
-    /// - intents : basic
+    /// - intents : support
     /// - value : activated
     /// - status : enabled
     /// - **label alignement : all**
@@ -190,7 +190,7 @@ enum SwitchScenarioSnapshotTests: String, CaseIterable {
             sizes.map { size in
                 return .init(
                     scenario: self,
-                    intent: .basic,
+                    intent: .support,
                     value: .activated,
                     status: .enabled,
                     alignment: alignment,

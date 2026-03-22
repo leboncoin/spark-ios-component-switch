@@ -8,13 +8,12 @@
 
 /// The intent of the switch.
 public enum SwitchIntent: CaseIterable {
+    case accent
     case alert
     case error
     case info
-    case neutral
     case main
-    case support
+    case neutral
     case success
-    case accent
-    case basic
+    case support
 }
