@@ -23,6 +23,9 @@ struct SwitchGetColorUseCase: SwitchGetColorUseCaseable {
         colors: any Colors
     ) -> any ColorToken {
         switch intent {
+        case .accent:
+            return colors.accent.accent
+
         case .alert:
             return colors.feedback.alert
 
@@ -32,23 +35,17 @@ struct SwitchGetColorUseCase: SwitchGetColorUseCaseable {
         case .info:
             return colors.feedback.info
 
-        case .neutral:
-            return colors.feedback.neutral
-
         case .main:
             return colors.main.main
 
-        case .support:
-            return colors.support.support
+        case .neutral:
+            return colors.feedback.neutral
 
         case .success:
             return colors.feedback.success
 
-        case .accent:
-            return colors.accent.accent
-
-        case .basic:
-            return colors.basic.basic
+        case .support:
+            return colors.support.support
         }
     }
 }
